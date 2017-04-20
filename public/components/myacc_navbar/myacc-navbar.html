@@ -1,0 +1,27 @@
+<!-- Referee -->
+<div layout="row" layout-xs="column" class="navbar navbar-default" style="padding-left: 2rem" ng-if="account.type==0">
+	<div>
+		<h4>Hello, {{account.username}}</h4>
+	</div>
+	<div flex>
+		
+	</div>
+	<div>
+		<md-button class="md-primary md-raised" ng-click="logout()">Log out</md-button>
+	</div>
+	
+</div>
+
+<!-- Gambler -->
+<div layout="row" layout-xs="column" class="navbar navbar-default" style="padding-left: 2rem" ng-if="account.type==1">
+	<div>
+		<h4>Hello, {{account.username}} | Balance: {{account.money|currency:"$":0}}</h4>
+	</div>
+	<div flex>
+		
+	</div>
+	<div>
+		<md-button class="md-primary md-raised" ng-click="logout()">Log out</md-button>
+	</div>
+	
+</div>

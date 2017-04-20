@@ -1,0 +1,28 @@
+<div class="panel panel-default">
+	<div class="panel-heading">Add player</div>
+	<div class="panel-body">
+		<form name="formModel" ng-submit="addPlayer()" novalidate>
+			<md-input-container class="form-group" ng-class="{'has-error': (formModel.name.$error.required || formModel.name.$error.minlength) && formModel.$submitted}">
+				<label for="name" class="control-label">Name</label>
+				<input type="text" class="form-control" name="name" id="name"  required ng-minlength="2" ng-model="player.name">
+				<span class="error-block" ng-show="formModel.$submitted">
+				<span ng-show="formModel.name.$error.required">Player name is required.</span>
+				<span ng-show="formModel.name.$error.minlength">Player name should have a length of two letters.</span>
+				</span>
+			</md-input-container><br>
+			<md-input-container class="form-group" ng-class="{'has-error': (formModel.email.$error.required || formModel.email.$error.email) && formModel.$submitted}">
+				<label for="email" class="control-label">Player Email</label>
+				<input type="email" class="form-control" name="email" id="email" required ng-model="player.email">
+				<span class="error-block" ng-show="formModel.$submitted">
+				<span ng-show="formModel.email.$error.required">Email is required.</span>
+				<span ng-show="formModel.email.$error.email">Email should be a valid one.</span>
+				</span>
+			</md-input-container><br>
+			<md-input-container class="form-group">
+			<label for="club" class="control-label">Player Club</label>
+			<input type="text" class="form-control" required name="club" id="club" ng-model="player.club">
+			</md-input-container><br>
+			<md-button type="submit" class="md-primary md-raised">Submit</md-button>
+		</form>
+	</div>
+</div>

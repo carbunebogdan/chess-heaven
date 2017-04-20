@@ -1,0 +1,13 @@
+<div class="panel panel-default">
+	<div class="panel-heading">Competition</div>
+	<div class="panel-body">
+		<!-- Pagination component -->
+		<pagination competitions="contCtrl.competitions" competition-id="contCtrl.currentCompId" all-games="contCtrl.games" filtered-games="contCtrl.gamesFilter"></pagination>
+
+		<!-- Standings component -->
+		<standings players="contCtrl.players" games="contCtrl.games" competitions="contCtrl.competitions" competition-id="contCtrl.currentCompId"></standings>
+		
+		<!-- Game component -->
+		<game competitions="contCtrl.competitions" ng-repeat="game in contCtrl.gamesFilter" game-data="game" all-games="contCtrl.games" players="contCtrl.players" account="account"></game>
+	</div>
+</div>

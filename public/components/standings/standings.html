@@ -1,0 +1,36 @@
+<div>
+	<button type="button" class="btn btn-default" ng-click="open()">Check Standings!</button>
+	<script type="text/ng-template" id="standingsModal.html">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">Competition: {{competition.name}}</h3>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <table class="table table-striped"> 
+                <thead> 
+                    <tr> 
+                        <th>Player</th>  
+                        <th ng-repeat="n in competitionRounds track by $index">R {{$index + 1}}</th> 
+                        <th>Total</th>   
+                    </tr> 
+                </thead> 
+                <tbody> 
+                    <tr ng-repeat="(id, value) in standings"> 
+                        <td>
+                            {{getPlayerById(id).name}}
+                        </td>
+                        <td ng-repeat="score in value.rounds">
+                            {{score}}
+                        </td>
+                        <td>
+                            {{value.score}}
+                        </td>
+                    </tr> 
+                </tbody> 
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+</div>

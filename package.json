@@ -1,0 +1,25 @@
+{
+  "name": "Fii-practic-fullJS",
+  "description": "Fii practic fullJS - some description",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "4.14.1",
+    "browserify-istanbul": "2.0.0",
+    "babelify": "7.3.0",
+    "mongoose": "4.8.6",
+    "body-parser": "1.17.1",
+    "path": "0.12.7",
+    "serve-static": "1.12.1",
+    "socket.io": "latest"
+  },
+  "devDependencies": {
+    "grunt": "1.0.1",
+    "grunt-contrib-clean": "1.0.0",
+    "grunt-contrib-compass": "1.1.1",
+    "grunt-concurrent": "2.3.1",
+    "grunt-browserify": "5.0.0",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-nodemon": "0.4.2",
+    "load-grunt-tasks": "3.5.2"
+  }
+}

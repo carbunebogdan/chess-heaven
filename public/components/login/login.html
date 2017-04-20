@@ -1,0 +1,108 @@
+<div layout="column" layout-align="center center" >
+  <md-content class="md-whiteframe-15dp col-lg-5">
+    <md-tabs md-dynamic-height md-border-bottom >
+      <md-tab label="Login">
+        <md-content class="md-padding">
+          <h4 style="text-align: center">Login into your account</h4><hr>
+          	<form name="loginFrm" ng-submit="login()">
+		      <md-input-container style="display: inline-block;">
+		        <label>Username</label>
+		        <input ng-model="userLogin.username" name="uname" required>
+		        <div ng-messages="loginFrm.uname.$error" multiple md-auto-hide="false">
+                        <div ng-message="required">
+                            You must enter an username.
+                        </div>
+                    </div>
+		      </md-input-container>
+		      
+		      <md-input-container style="display: inline-block;">
+		        <label>Password</label>
+		        <input ng-model="userLogin.password" type="password" name="password" required>
+		        <div ng-messages="loginFrm.password.$error" multiple md-auto-hide="false">
+                        <div ng-message="required">
+                            Don't forget about your password !
+                        </div>
+                    </div>
+		      </md-input-container><hr>
+		      <div>
+		      <md-button type="submit" class="md-primary md-raised" ng-disabled="!userLogin.username || !userLogin.password" style="display: inline-block;vertical-align: center">Login</md-button>
+		      <p style="display: inline-block;vertical-align: center;color: red" ng-if="bad">Wrong password or username!</p>
+		      <md-progress-linear ng-if="loginLoading" md-mode="indeterminate"></md-progress-linear>
+		      
+		      </div>
+		      <p style="cursor: pointer;text-decoration-line: underline;" ng-click="showForgot()">Forgot your password?</p>
+		    
+		    </form>
+        </md-content>
+      </md-tab>
+      <md-tab label="Sign up">
+        <md-content class="md-padding">
+          <h4 style="text-align: center">Let's make an account..</h4>
+          <hr>
+          <form name="signupFrm" ng-submit="signup()">
+		      <md-input-container style="display: inline-block;">
+		        <label>Your username</label>
+		        <input ng-model="userSign.username" name="uname" required minlength="5" maxlength="20">
+		        <div ng-messages="signupFrm.uname.$error" multiple md-auto-hide="false">
+                        <div ng-message="required">
+                            You must enter an username.
+                        </div>
+                        <div ng-message-exp="['minlength','maxlength']">
+                            Your username must be between 5 and 20 characters long.
+                        </div>
+                    </div>
+		      </md-input-container>
+		      <md-input-container style="display: inline-block;">
+		        <label>A good password</label>
+		        <input ng-model="userSign.password" type="password" name="password" required minlength="5" maxlength="20">
+		        <div ng-messages="signupFrm.password.$error" multiple md-auto-hide="false">
+                        <div ng-message="required">
+                            You must enter a password.
+                        </div>
+                        <div ng-message-exp="['minlength','maxlength']">
+                            Your password must be between 5 and 20 characters long.
+                        </div>
+                    </div>
+		      </md-input-container><br>
+		      <md-input-container>
+				<label>What's your role?</label>
+				<br/>
+				<md-select ng-model="userSign.type" style="width: 15rem">
+					<md-option value="0" >Referee</md-option>
+					<md-option value="1" >Gambler</md-option>
+				</md-select>
+				</md-input-container>
+		      <hr>
+		      <md-button class="md-warn md-raised" type="submit" ng-disabled="userSign.username.length<3 || userSign.password.length<3">Sign up!</md-button>
+		      <md-progress-linear ng-if="signLoading" md-mode="indeterminate"></md-progress-linear>
+		    </form>
+        </md-content>
+      </md-tab>
+    </md-tabs>
+  </md-content>
+  <md-content class="md-whiteframe-15dp col-lg-5">
+    <h4 style="text-align: center;">Latest Accounts</h4>
+    <table class="table table-striped"> 
+                <thead> 
+                    <tr> 
+                        <th>Name</th>  
+                        <th>Type</th> 
+                        <th>Date</th>   
+                    </tr> 
+                </thead> 
+                <tbody> 
+                    <tr ng-repeat="account in accounts"> 
+                        <td>
+                            {{account.username}}
+                        </td>
+                        <td>
+                            <p ng-if="account.type==0">Referee</p>
+                            <p ng-if="account.type==1">Gambler</p>
+                        </td>
+                        <td>
+                            {{account.join_date|date}}
+                        </td>
+                    </tr> 
+                </tbody> 
+            </table>
+</div>

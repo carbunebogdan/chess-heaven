@@ -1,0 +1,80 @@
+/** General Styles **/
+/* line 3, main.scss */
+html, body {
+  height: 100%;
+  background: url("../images/bckTexture.jpg") fixed;
+}
+
+/* line 8, main.scss */
+.bar {
+  background-color: #c1c1c1;
+}
+
+/* line 13, main.scss */
+.breadcrumb .active a {
+  color: #000;
+}
+
+/* line 18, main.scss */
+.competition {
+  background: #fff;
+  color: #000;
+}
+
+/** GAME COMPETITION STYLES **/
+/* line 25, main.scss */
+.game .game__player-name {
+  padding-left: 1rem;
+}
+/* line 29, main.scss */
+.game .game__player-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/** RAIN component styles below **/
+/* line 37, main.scss */
+.rain-emoji-block {
+  position: relative;
+  overflow: hidden;
+}
+/* line 41, main.scss */
+.rain-emoji-block .rain-emoji-block__background {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 999;
+}
+/* line 49, main.scss */
+.rain-emoji-block .rain-emoji-block__background span {
+  top: -30%;
+  position: absolute;
+  webkit-animation: slide linear infinite;
+  -moz-animation: slide linear infinite;
+  animation: slide linear infinite;
+}
+
+@-moz-keyframes slide {
+  0% {
+    top: -30%;
+  }
+  50% {
+    top: 50%;
+  }
+  100% {
+    top: 130%;
+  }
+}
+@keyframes slide {
+  0% {
+    top: -30%;
+  }
+  50% {
+    top: 50%;
+  }
+  100% {
+    top: 130%;
+  }
+}

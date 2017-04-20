@@ -1,0 +1,5 @@
+<ol class="breadcrumb">
+	<li ng-repeat="n in competitionRounds track by $index" ng-class="{active: competition.current_round === $index+1}">
+		<a href="" ng-click="getNewGameSet($index+1)">Round {{$index+1}}</a>
+	</li>
+</ol>

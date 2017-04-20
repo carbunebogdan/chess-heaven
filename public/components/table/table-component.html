@@ -1,0 +1,25 @@
+<div class="panel panel-default">
+	<div class="panel-heading">{{tableTitle}}</div>
+	<div class="panel-body">
+		<table class="table table-striped"> 
+			<thead> 
+				<tr> 
+					<th ng-repeat="header in tableHeaders">{{header}}</th> 
+				</tr> 
+			</thead> 
+			<tbody> 
+				<tr ng-repeat="body in tableBody"> 
+					<td ng-repeat="key in tableKeys">
+						<div ng-if="body[key].length>20">
+							{{body[key]|date}}
+						</div>
+						<div ng-if="body[key].length<20 || body[key]<50">
+							{{body[key]}}
+						</div>
+						
+					</td>
+				</tr> 
+			</tbody> 
+		</table>
+	</div>
+</div>
