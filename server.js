@@ -23,10 +23,10 @@ require('./app/routes/index')(app);
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/views/index.html');
 });
-
+app.set('port', (process.env.PORT || 5000));
 // Start the app by listening on 3000
-const server = app.listen(port, function() {
-    console.log('Chess Heaven opened the gates on port ' + port);
+const server = app.listen(app.get('port'), function() {
+    console.log('Chess Heaven opened the gates on port ' + app.get('port'));
 });
 
 const io = require('socket.io')(server);

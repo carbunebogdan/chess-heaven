@@ -70,6 +70,7 @@
 				<md-select ng-model="userSign.type" style="width: 15rem">
 					<md-option value="0" >Referee</md-option>
 					<md-option value="1" >Gambler</md-option>
+                    <md-option value="2" >Player</md-option>
 				</md-select>
 				</md-input-container>
 		      <hr>
@@ -98,6 +99,7 @@
                         <td>
                             <p ng-if="account.type==0">Referee</p>
                             <p ng-if="account.type==1">Gambler</p>
+                            <p ng-if="account.type==2">Player</p>
                         </td>
                         <td>
                             {{account.join_date|date}}

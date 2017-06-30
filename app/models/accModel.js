@@ -14,7 +14,7 @@ const accModel = new Schema({
     type: {
         type: Number,
         required: true,
-        default: 0 // Options: 0, 1. Explained: referee,gambler
+        default: 0 // Options: 0, 1, 2. Explained: referee,gambler,player
     },
     status: {
         type: Number,

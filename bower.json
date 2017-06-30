@@ -1,16 +1,19 @@
 {
-	"name": "Fii-practic-fullJS",
-	"version": "1.0.0",
-	"dependencies": {
-		"angular": "1.6.3",
-		"angular-ui-router": "0.4.2",
-		"angular-ui-bootstrap": "2.5.0",
-		"angular-animate": "latest",
-		"angular-touch": "latest",
-		"angular-material":"latest",
-		"angular-local-storage":"latest",
-		"angular-messages#X.Y.Z":"latest",
-		"bootstrap": "3.3.7",
-		"socket.io-client": "latest"
-	}
+  "name": "chess-heaven",
+  "version": "1.0.0",
+  "dependencies": {
+    "angular": "1.6.3",
+    "angular-ui-router": "latest",
+    "angular-ui-bootstrap": "latest",
+    "angular-animate": "latest",
+    "angular-touch": "latest",
+    "angular-material": "latest",
+    "angular-local-storage": "latest",
+    "angular-messages": "latest",
+    "bootstrap": "3.3.7",
+    "socket.io-client": "latest"
+  },
+  "resolutions": {
+    "angular": "1.6.3"
+  }
 }
