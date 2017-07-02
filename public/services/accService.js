@@ -16,6 +16,24 @@ class accService {
         return _$http(configObject);
     }
 
+    activateAcc(accData){
+        const configObject = {
+            method: 'PUT',
+            url: '/activate',
+            data: JSON.stringify(accData)
+        };
+        return _$http(configObject);
+    }
+
+    sendCode(accData){
+        const configObject = {
+            method: 'POST',
+            url: '/activate',
+            data: JSON.stringify(accData)
+        };
+        return _$http(configObject);
+    }
+
     getLatestAccs() {
         const configObject = {
             method: 'GET',

@@ -4,8 +4,13 @@ const Schema = mongoose.Schema;
 const accModel = new Schema({
     username: {
         type: String,
+        unique:true,
         required: true,
-        default: 1,
+    },
+    email: {
+        type: String,
+        required: true,
+        match: /\S+@\S+\.\S+/
     },
     password: {
         type: String,
@@ -24,10 +29,18 @@ const accModel = new Schema({
         type: Number,
         default: 0
     },
+    club:{
+        type: String,
+        default: null
+    },
     join_date: {
         type: Date,
         required: true,
         default: new Date().getTime()
+    },
+    usable:{
+        type: Number,
+        default: 0
     }
 });
 

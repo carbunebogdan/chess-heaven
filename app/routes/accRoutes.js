@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const accModel = require('../models/accModel');
+var nodemailer = require('nodemailer');
 
 router.route('/acc')
 	.get((request, res) => {
@@ -15,12 +16,46 @@ router.route('/acc')
 	})
     .post((request, res) => {
     	const account = new accModel(request.body);
-        account.save((err, accounts) => {
-            if (err) {
-                return res.send(err);
+        var code=Math.floor(Math.random()*(9999-1000+1)+1000).toString();
+        var canInsert=true;;
+        accModel.count({'username': request.body.username},(err,count)=>{
+            if(!count){
+                console.log('good user');
+                account.save((err, accounts) => {
+                if (err) {
+                    console.log(err);
+                }
+                var transporter = nodemailer.createTransport({
+                  service: 'gmail',
+                  auth: {
+                    user: 'chessheaven17@gmail.com',
+                    pass: 'amparola'
+                  }
+                });
+
+                var mailOptions = {
+                  from: 'chessheaven17@gmail.com',
+                  to: request.body.email,
+                  subject: 'Chess Heaven Registration Code',
+                  text: 'Hello there ! Here is your code: '+ code
+                };
+
+                transporter.sendMail(mailOptions, function(error, info){
+                  if (error) {
+                    console.log(error);
+                  } else {
+                    return res.send(code);
+                  }
+                });
+                
+            });
+            }else{
+                console.log('bad user');
+                return res.send("bad");
             }
-            return res.send(accounts);
         });
+        
+        
     })
     .put((request, res) => {
         accModel.findOneAndUpdate(
@@ -31,6 +66,7 @@ router.route('/acc')
                 return res.send(err);
             }
             return res.send(account);
+                    
             
         });
     });
@@ -44,7 +80,44 @@ router.route('/acc/:user')
             return res.send(acc);
         });
     });
+router.route('/activate')
+    .put((request, res)=>{
+        accModel.findOneAndUpdate(
+            { 'username': request.body.username },
+            { $inc: { 'usable':1 } },
+            { new:true }, (err, account) => {
+            if (err) {
+                return res.send(err);
+            }
+            return res.send(account);
+            
+        });
+    })
+    .post((request, res)=>{
+        var code=Math.floor(Math.random()*(9999-1000+1)+1000).toString();
+        var transporter = nodemailer.createTransport({
+                  service: 'gmail',
+                  auth: {
+                    user: 'chessheaven17@gmail.com',
+                    pass: 'amparola'
+                  }
+                });
 
+        var mailOptions = {
+                  from: 'chessheaven17@gmail.com',
+                  to: request.body.email,
+                  subject: 'Chess Heaven Registration Code',
+                  text: 'Hello '+ request.body.username +'! Here is your resent code: '+ code
+                };
+
+        transporter.sendMail(mailOptions, function(error, info){
+                  if (error) {
+                    console.log(error);
+                  } else {
+                    return res.send(code);
+                  }
+                });
+    });
 router.route('/accmoney')
     .put((request, res) => {
         

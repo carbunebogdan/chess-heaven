@@ -3,6 +3,8 @@
     <md-tabs md-dynamic-height md-border-bottom >
       <md-tab label="Login">
         <md-content class="md-padding">
+
+        <div ng-hide="notActivated">
           <h4 style="text-align: center">Login into your account</h4><hr>
           	<form name="loginFrm" ng-submit="login()">
 		      <md-input-container style="display: inline-block;">
@@ -33,16 +35,69 @@
 		      <p style="cursor: pointer;text-decoration-line: underline;" ng-click="showForgot()">Forgot your password?</p>
 		    
 		    </form>
+            </div>
+
+            <!-- Resend 4-digit code -->
+            <div ng-if="notActivated">
+            <br>
+                <div ng-hide="resent">
+                <p style="color:red;text-align: center">Your account is not activated.</p><br>
+                <md-button class="md-primary md-raised" ng-click="sendCode()" style="display: block;margin:auto">Resend 4-digit code</md-button><br>
+                <md-progress-circular md-mode="indeterminate" ng-if="sendLoading" style="display: block;margin: auto"></md-progress-circular>
+                </div>
+                <md-button class="md-raised" ng-click="revertLogin()" style="display: block;margin:auto">Go Back</md-button><br><br>
+
+
+                <div ng-if="resent">
+                    <div ng-hide="activated">
+                        <hr>
+                        <p style="color: gray">An email has been sent with the verification code to {{account.email}}</p><br>
+                        <div>
+                        <p ng-if="wrongCode" style="color:red;text-align: center;margin:auto"> Wrong code </p>
+                        <label style="text-align: center;margin:auto;display: block">4 digit code</label><br>
+                        <input ng-model="insertedCode" name="code" style="height: 5rem;width: 9.5rem;margin:auto;display: block;font-size: 5.3rem;text-align: center" type="password" required minlength="4" maxlength="4"><br>
+                        <md-button class="md-primary md-raised" style="margin:auto;display: block" ng-click="checkCode(insertedCode)">Activate</md-button>
+                        </div>
+                        <md-progress-circular md-mode="indeterminate" ng-if="checkLoading" style="display: block;margin: auto"></md-progress-circular>
+                    </div>
+                    
+                    <div ng-if="activated">
+                        <p style="color: green">Your account has been succesfully activated.</p>
+                        <md-button class="md-primary md-raised" style="margin:auto;display: block" ng-click="proceed()">Proceed</md-button>
+                    </div>
+
+
+                </div>
+
+            </div>
+
         </md-content>
       </md-tab>
       <md-tab label="Sign up">
         <md-content class="md-padding">
+        <div ng-hide="codeReceived">
           <h4 style="text-align: center">Let's make an account..</h4>
           <hr>
+          <div ng-if="badUser">
+                 <p style="color:red">This username is already taken.</p>
+                 <p style="color:gray">Please choose another one and try again.</p>
+            </div>
           <form name="signupFrm" ng-submit="signup()">
+          	  <md-input-container style="display: inline-block;">
+		        <label>Email</label>
+		        <input type="email" ng-model="userSign.email" name="email" required>
+		        <div ng-messages="signupFrm.email.$error" multiple md-auto-hide="false">
+                        <div ng-message="required">
+                            You must enter an email.
+                        </div>
+                        <div ng-message="email">
+                            You must enter a valid email.
+                        </div>
+                    </div>
+		      </md-input-container><br>
 		      <md-input-container style="display: inline-block;">
 		        <label>Your username</label>
-		        <input ng-model="userSign.username" name="uname" required minlength="5" maxlength="20">
+		        <input ng-model="userSign.username" name="uname"  required minlength="5" maxlength="20">
 		        <div ng-messages="signupFrm.uname.$error" multiple md-auto-hide="false">
                         <div ng-message="required">
                             You must enter an username.
@@ -51,7 +106,7 @@
                             Your username must be between 5 and 20 characters long.
                         </div>
                     </div>
-		      </md-input-container>
+		      </md-input-container><br>
 		      <md-input-container style="display: inline-block;">
 		        <label>A good password</label>
 		        <input ng-model="userSign.password" type="password" name="password" required minlength="5" maxlength="20">
@@ -63,6 +118,7 @@
                             Your password must be between 5 and 20 characters long.
                         </div>
                     </div>
+
 		      </md-input-container><br>
 		      <md-input-container>
 				<label>What's your role?</label>
@@ -77,6 +133,24 @@
 		      <md-button class="md-warn md-raised" type="submit" ng-disabled="userSign.username.length<3 || userSign.password.length<3">Sign up!</md-button>
 		      <md-progress-linear ng-if="signLoading" md-mode="indeterminate"></md-progress-linear>
 		    </form>
+            </div>
+
+            <!-- Check 4-digit code -->
+            <div ng-if="codeReceived" ng-hide="activated">
+                <hr>
+                <p style="color: gray">An email has been sent with the verification code.</p><br>
+                <div>
+                <p ng-if="wrongCode" style="color:red;text-align: center;margin:auto"> Wrong code </p>
+                <label style="text-align: center;margin:auto;display: block">4 digit code</label><br>
+                <input ng-model="insertedCode" name="code" style="height: 5rem;width: 9.5rem;margin:auto;display: block;font-size: 5.3rem;text-align: center" type="password" required minlength="4" maxlength="4"><br>
+                <md-button class="md-primary md-raised" style="margin:auto;display: block" ng-click="checkCode(insertedCode)">Complete sign up</md-button>
+                </div>
+            </div>
+            <div ng-if="activated">
+                <p style="color: green">Your account has been succesfully activated.</p>
+                <md-button class="md-primary md-raised" style="margin:auto;display: block" ng-click="proceed()">Proceed</md-button>
+            </div>
+            
         </md-content>
       </md-tab>
     </md-tabs>
