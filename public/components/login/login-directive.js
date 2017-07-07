@@ -25,13 +25,15 @@ const loginDirective = (accService,$rootScope,$location,localStorageService,$mdD
 
             // Refresh latest accounts list
             scope.refreshAccs=()=>{
+                scope.accLoading=true;
                 accService.getLatestAccs().then((rsp) => {
                             scope.accounts=rsp.data;
+                            scope.accLoading=false;
                         }, (err) => {
                             return err;
                         });
             }
-            
+
             // Get latest accounts
             scope.refreshAccs();
 
@@ -49,7 +51,9 @@ const loginDirective = (accService,$rootScope,$location,localStorageService,$mdD
                                 scope.bad=false;
                                 localStorageService.set('account',$rootScope.account);
                                 localStorageService.set('loggedIn',true);
-                                $location.path('/manager');
+                                    $location.path('/manager');
+                                
+                                
                             }
                         }else{
                             scope.bad=true;

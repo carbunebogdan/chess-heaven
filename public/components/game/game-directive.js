@@ -78,15 +78,15 @@ const gameComponent = ($rootScope, gameService, accService, betService, localSto
                         var bets=rsp.data;
                         if(bets.length>0){
                             for(i=0;i<bets.length;i++){
-                                if(bets[i].result==bets[i].option){
                                     var userMoney = {
                                         user: bets[i].userId,
                                         ammount: 2 * bets[i].money
                                     };
                                     accService.updateMoney(userMoney).then((rsp) => {
-
+                                        socketService.socketEmit('updateMoney', 1);
+                                        socketService.socketEmit('newBet', 1);
                                     });
-                                }
+                                
                             }
                         }
                     });

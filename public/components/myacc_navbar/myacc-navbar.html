@@ -25,3 +25,21 @@
 	</div>
 	
 </div>
+
+<!-- Player -->
+<div layout="row" layout-xs="column" class="navbar navbar-default" style="padding-left: 2rem" ng-if="account.type==2">
+	<div>
+		<h4>Hello, {{account.username}} | </h4>
+	</div>
+	<div flex>
+		
+	</div>
+
+	<div>
+		<md-button class="md-icon-button md-primary" aria-label="Favorite">
+        	<md-icon md-svg-icon="../images/icons/notification.svg"></md-icon>
+      	</md-button>
+		<md-button class="md-primary md-raised md-cornered" ng-click="logout()">Log out</md-button>
+	</div>
+	
+</div>

@@ -35,7 +35,7 @@ router.route('/bet/:gameId')
     })
     .put((request,res)=>{
         betModel.updateMany({ 'gameId': request.params.gameId}, {$set:{ 'result':request.body.status }}).then(()=>{
-            betModel.find({ 'gameId': request.params.gameId}, {}, (err, bets) => {
+            betModel.find({ 'gameId': request.params.gameId, 'option':request.body.status}, {}, (err, bets) => {
             if (err) {
                 return res.send(err);
             }

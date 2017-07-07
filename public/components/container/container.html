@@ -12,6 +12,7 @@
         </li>
     </ul>
     <!-- end of <Main Menu> -->
+
     <!-- Sub Menu - Player/Competition -->
     <ol class="breadcrumb" ng-show="contCtrl.viewValue === 'manager'">
         <li>
@@ -22,6 +23,7 @@
         </li>
     </ol>
     <!-- end of <Sub Menu> -->
+
     <!-- Add and List players -->
     <div class="row" ng-show="contCtrl.subViewValue === 'player' && contCtrl.viewValue === 'manager'">
         <div class="col-lg-12">
@@ -31,6 +33,7 @@
             <table-component table-headers="contCtrl.userHeaders" table-keys="contCtrl.userKeys" table-body="contCtrl.players" table-title="Players"></table-component>
         </div>
     </div>
+
     <!-- Add and List competitions -->
     <div class="row" ng-show="contCtrl.subViewValue === 'competition' && contCtrl.viewValue === 'manager'">
         <div class="col-lg-12">
@@ -40,6 +43,7 @@
             <table-component table-headers="contCtrl.competitionHeaders" table-keys="contCtrl.competitionKeys" table-body="contCtrl.competitions" table-title="Competitions"></table-component>
         </div>
     </div>
+
     <!-- This will show when we click on a competition -->
     <div class="row" ng-if="contCtrl.viewValue === 'competition'">
         <div class="col-lg-12">
@@ -47,6 +51,7 @@
         </div>
     </div>
 </div>
+
 <!-- Gambler -->
 <div class="container" ng-if="account.type==1" layout="column">
     <!-- Account Nav -->
@@ -61,6 +66,7 @@
         </li>
     </ul>
     <!-- end of <Main Menu> -->
+
     <br>
     <div ng-show="contCtrl.viewValue === 'manager'">
         <!-- Sub Menu - Player/Competition -->
@@ -73,12 +79,14 @@
             </li>
         </ol>
         <!-- end of <Sub Menu> -->
+
         <!-- My account -->
         <md-content ng-if="contCtrl.subViewValue=='myacc'" class="md-whiteframe-15dp" style="padding: 2rem">
             <h3>My account data</h3>
             <hr>
             <h4>Add money to my account</h4>
             <hr>
+            <chess-game></chess-game>
             <form name="addMoney" layout="row" layout-xs="column" ng-submit="updateMoney()">
                 <md-input-container class="md-block" style="width: 15rem;">
                     <label>Money ammount</label>
@@ -98,6 +106,7 @@
                 <md-button class="md-primary md-raised" type="submit">Add money</md-button>
             </form>
         </md-content>
+
         <!-- Current Bids -->
         <md-content ng-if="contCtrl.subViewValue=='mybets'" class="md-whiteframe-15dp" style="padding: 2rem;">
             <h3>My bids</h3>
@@ -133,10 +142,89 @@
             </div>
         </md-content>
     </div>
+
     <!-- This will show when we click on a competition -->
     <div class="row" ng-if="contCtrl.viewValue === 'competition'">
         <div class="col-lg-12">
             <competition-directive></competition-directive>
+        </div>
+    </div>
+</div>
+
+<!-- Player -->
+<div class="container" ng-if="account.type==2" layout="column">
+    <!-- Account Nav -->
+    <myacc-navbar></myacc-navbar>
+    <!-- Main Menu -->
+    <ul class="nav nav-tabs nav-justified bar">
+        <li role="presentation" ng-class="{active: contCtrl.viewValue === 'manager'}">
+            <a href="/#!/manager" ng-click="changeView('manager')">Manage Account</a>
+        </li>
+        <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'boards'}">
+            <a href="" ng-click="changeView('board')">Boards</a>
+        </li>
+        <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'currGame'}">
+            <a href="" ng-click="changeView('game')">Game</a>
+        </li>
+    </ul>
+    <!-- end of <Main Menu> -->
+
+    <br>
+    <div ng-show="contCtrl.viewValue === 'manager'">
+        <!-- Sub Menu - Player/Competition -->
+        <ol class="breadcrumb" ng-show="contCtrl.viewValue === 'manager'">
+            <li>
+                <md-button class="md-primary md-raised" ng-disabled="contCtrl.subViewValue === 'myacc'" ng-click="changeSubView('myacc')">My account</md-button>
+            </li>
+            <li>
+                <md-button class="md-primary md-raised" ng-disabled="contCtrl.subViewValue === 'mygames'" ng-click="changeSubView('mygames')">My Games</md-button>
+            </li>
+        </ol>
+        <!-- end of <Sub Menu> -->
+
+        <!-- My account -->
+        <md-content ng-if="contCtrl.subViewValue=='myacc'" class="md-whiteframe-15dp" style="padding: 2rem">
+            <h3>My account data</h3>
+            <hr>
+            <h4>Add money to my account</h4>
+            <hr>
+            <form name="addMoney" layout="row" layout-xs="column" ng-submit="updateMoney()">
+                <md-input-container class="md-block" style="width: 15rem;">
+                    <label>Money ammount</label>
+                    <input required type="number" step="any" name="money" ng-model="userMoney.ammount" min="1" max="500" />
+                    <div ng-messages="addMoney.money.$error" multiple md-auto-hide="false">
+                        <div ng-message="required">
+                            You need to enter a value.
+                        </div>
+                        <div ng-message="min">
+                            You can't add $0, it's hilarious!
+                        </div>
+                        <div ng-message="max">
+                            {{addMoney.money.$viewValue | currency:"$":0}} ? You can only add a maximum of $500 at once.
+                        </div>
+                    </div>
+                </md-input-container>
+                <md-button class="md-primary md-raised" type="submit">Add money</md-button>
+            </form>
+        </md-content>
+
+        <!-- Current Bids -->
+        <md-content ng-if="contCtrl.subViewValue=='mygames'" class="md-whiteframe-15dp" style="padding: 2rem;">
+            <h3>My Games</h3>
+            <hr>
+            <h4>Finished</h4>
+            <hr>
+            
+            <h4>Active</h4>
+            <hr>
+            
+        </md-content>
+    </div>
+
+    <!-- This will show when we click on a competition -->
+    <div class="row" ng-if="contCtrl.viewValue === 'game'">
+        <div class="col-lg-12">
+            <game-platform></game-platform>
         </div>
     </div>
 </div>

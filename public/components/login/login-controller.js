@@ -1,8 +1,10 @@
 class loginController{
     constructor($location,localStorageService) {
     	// Shared properties throughout the application
-        if(localStorageService.get('account')) 
-        $location.path('/manager');
+    	if(localStorageService.get('account'))
+        	$location.path('/manager');
+         
+        
         
 
        

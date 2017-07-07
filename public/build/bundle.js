@@ -92,6 +92,125 @@ addUsers.$inject = ['playerService'];
 angular.module('berger').directive('addUsers', addUsers);
 
 },{}],3:[function(require,module,exports){
+class chatController {
+        constructor($location, $rootScope, localStorageService, socketService, accService) {
+                // Register socket
+                socketService.registerSocket();
+
+                if (!$rootScope.account) {
+                        $rootScope.account = localStorageService.get('account');
+                }
+
+                if (!$rootScope.account) {
+                        $location.path('/login');
+                }
+
+                $rootScope.actives = [];
+                accService.getActive().then(rsp => {
+                        $rootScope.actives = rsp.data;
+                });
+
+                // Watch for socket incoming data
+                socketService.socketOn('account', () => {
+                        accService.getActive().then(rsp => {
+                                $rootScope.actives = rsp.data;
+                        });
+                });
+
+                $rootScope.messages = [{
+                        sender: 'robo',
+                        message: 'Salut! Bine ai venit!'
+                }];
+        }
+}
+
+chatController.$inject = ['$location', '$rootScope', 'localStorageService', 'socketService', 'accService'];
+angular.module('berger').controller('chatController', chatController);
+
+},{}],4:[function(require,module,exports){
+const chatDirective = ($rootScope, socketService, $window, accService, localStorageService) => {
+    return {
+        templateUrl: 'components/chat/chat.html',
+        restrict: 'E',
+        link: scope => {
+            scope.messages = [{
+                sender: 'robo',
+                message: 'Salut! Bine ai venit!'
+            }];
+            var msgSound = new Audio('../../sounds/msg.mp3');
+            scope.account = $rootScope.account;
+            scope.message = {
+                sender: $rootScope.account.username,
+                message: ''
+            };
+            var scrollChat = () => {
+                var chat = document.getElementById('chat');
+                $('#chat').animate({
+                    scrollTop: chat.scrollHeight
+                }, 300);
+            };
+            scope.onEnter = () => {
+                scope.message = {
+                    sender: $rootScope.account.username,
+                    message: $rootScope.account.username + ' joined !'
+                };
+                scope.send();
+
+                scope.account.status = 1;
+                localStorageService.set('account', scope.account);
+                $rootScope.account = scope.account;
+                socketService.socketEmit('account', scope.account);
+            };
+
+            scope.onExit = () => {
+                scope.message = {
+                    sender: $rootScope.account.username,
+                    message: $rootScope.account.username + ' left..'
+                };
+                // scope.send();
+                scope.account.status = 0;
+                localStorageService.set('account', scope.account);
+                socketService.socketEmit('account', scope.account);
+            };
+
+            $window.onbeforeunload = scope.onExit;
+
+            scope.changeTitle = () => {
+                document.title = 'Bogodan Chatroom';
+            };
+            scope.send = () => {
+                if (scope.message.message != '') {
+                    scope.messages.push(scope.message);
+                    scrollChat();
+                    socketService.socketEmit('newMessage', scope.message);
+
+                    scope.message = {
+                        sender: $rootScope.account.username,
+                        message: ''
+                    };
+                }
+            };
+
+            scope.onEnter();
+            // Watch for socket incoming data
+            socketService.socketOn('newMessage', rsp => {
+                if (rsp.source.sender != $rootScope.account.username) {
+                    scope.messages.push(rsp.source);
+                    scope.$apply();
+                    scrollChat();
+                    msgSound.play();
+                    document.title = 'Message from ' + rsp.source.sender;
+                }
+            });
+        }
+    };
+};
+
+chatDirective.$inject = ['$rootScope', 'socketService', '$window', 'accService', 'localStorageService'];
+
+angular.module('berger').directive('chatDirective', chatDirective);
+
+},{}],5:[function(require,module,exports){
 const competitionDirective = () => {
     return {
         templateUrl: 'components/competition/competition.html',
@@ -104,7 +223,7 @@ competitionDirective.$inject = [];
 
 angular.module('berger').directive('competitionDirective', competitionDirective);
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 class containerController {
     constructor($state, playerRsp, competitionRsp, gamesRsp, socketService, competitionService, $location, localStorageService, $rootScope, accService) {
         if (!$rootScope.account) $rootScope.account = localStorageService.get('account');
@@ -151,7 +270,7 @@ containerController.$inject = ['$state', 'playerRsp', 'competitionRsp', 'gamesRs
 
 angular.module('berger').controller('containerController', containerController);
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 const containerDirective = ($rootScope, accService, localStorageService, betService, socketService) => {
     return {
         templateUrl: 'components/container/container.html',
@@ -199,7 +318,7 @@ containerDirective.$inject = ['$rootScope', 'accService', 'localStorageService',
 
 angular.module('berger').directive('containerDirective', containerDirective);
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const gameComponent = ($rootScope, gameService, accService, betService, localStorageService, socketService) => {
     return {
         templateUrl: 'components/game/game.html',
@@ -277,13 +396,14 @@ const gameComponent = ($rootScope, gameService, accService, betService, localSto
                         var bets = rsp.data;
                         if (bets.length > 0) {
                             for (i = 0; i < bets.length; i++) {
-                                if (bets[i].result == bets[i].option) {
-                                    var userMoney = {
-                                        user: bets[i].userId,
-                                        ammount: 2 * bets[i].money
-                                    };
-                                    accService.updateMoney(userMoney).then(rsp => {});
-                                }
+                                var userMoney = {
+                                    user: bets[i].userId,
+                                    ammount: 2 * bets[i].money
+                                };
+                                accService.updateMoney(userMoney).then(rsp => {
+                                    socketService.socketEmit('updateMoney', 1);
+                                    socketService.socketEmit('newBet', 1);
+                                });
                             }
                         }
                     });
@@ -319,7 +439,74 @@ gameComponent.$inject = ['$rootScope', 'gameService', 'accService', 'betService'
 
 angular.module('berger').directive('game', gameComponent);
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+const gamePlatform = () => {
+			return {
+						templateUrl: 'components/game_platform/game-platform.html',
+						restrict: 'E',
+						link: scope => {
+
+									var game = new Chess();
+
+									// do not pick up pieces if the game is over
+									// only pick up pieces for White
+									var onDragStart = function (source, piece, position, orientation) {
+												if (game.in_checkmate() === true || game.in_draw() === true || piece.search(/^b/) !== -1) {
+															return false;
+												}
+									};
+									var onDrop = function (source, target) {
+												console.log(source);
+												console.log(target);
+												// see if the move is legal
+												var move = game.move({
+															from: source,
+															to: target,
+															promotion: 'q' // NOTE: always promote to a queen for example simplicity
+												});
+
+												// illegal move
+												if (move === null) return 'snapback';
+									};
+
+									scope.source = '';
+									scope.target = '';
+									scope.setpos = (source, target) => {
+												console.log('begin move');
+												console.log(source);
+												console.log(target);
+												board.move(source + '-' + target);
+												scope.source = scope.target;
+												scope.target = '';
+												console.log('end move');
+									};
+
+									// update the board position after the piece snap
+									// for castling, en passant, pawn promotion
+									var onSnapEnd = function () {
+												board.position(game.fen(), true);
+												console.log(game.fen());
+									};
+
+									var cfg = {
+												draggable: true,
+												position: 'start',
+												onDragStart: onDragStart,
+												onDrop: onDrop,
+												onSnapEnd: onSnapEnd,
+												showNotation: true
+									};
+
+									var board = ChessBoard('#board', cfg);
+						}
+			};
+};
+
+gamePlatform.$inject = [];
+
+angular.module('berger').directive('gamePlatform', gamePlatform);
+
+},{}],10:[function(require,module,exports){
 class loginController {
     constructor($location, localStorageService) {
         // Shared properties throughout the application
@@ -331,7 +518,7 @@ loginController.$inject = ['$location', 'localStorageService'];
 
 angular.module('berger').controller('loginController', loginController);
 
-},{}],8:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 const loginDirective = (accService, $rootScope, $location, localStorageService, $mdDialog) => {
     return {
         templateUrl: 'components/login/login.html',
@@ -359,8 +546,10 @@ const loginDirective = (accService, $rootScope, $location, localStorageService, 
 
             // Refresh latest accounts list
             scope.refreshAccs = () => {
+                scope.accLoading = true;
                 accService.getLatestAccs().then(rsp => {
                     scope.accounts = rsp.data;
+                    scope.accLoading = false;
                 }, err => {
                     return err;
                 });
@@ -483,43 +672,7 @@ loginDirective.$inject = ['accService', '$rootScope', '$location', 'localStorage
 
 angular.module('berger').directive('loginDirective', loginDirective);
 
-},{}],9:[function(require,module,exports){
-const messageBox = () => {
-	return {
-		restrict: 'A',
-		templateUrl: 'components/message_box/message-box.html',
-		scope: true,
-		link: scope => {
-
-			// Initialize the default properties
-			scope.messages = [];
-			scope.text = 'init value';
-			scope.type = 'danger';
-
-			// Populates the message list
-			scope.addMessage = () => {
-				if (scope.text && scope.type) {
-					const msg = {
-						text: scope.text,
-						type: scope.type
-					};
-					scope.messages.push(msg);
-					scope.text = '';
-					scope.type = '';
-				}
-			};
-
-			// Removes a message by index
-			scope.removeMessage = index => {
-				scope.messages.splice(index, 1);
-			};
-		}
-	};
-};
-
-angular.module('berger').directive('messageBox', messageBox);
-
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 const myaccNavbar = ($rootScope, accService, localStorageService, $location, socketService) => {
     return {
         templateUrl: 'components/myacc_navbar/myacc-navbar.html',
@@ -576,7 +729,7 @@ myaccNavbar.$inject = ['$rootScope', 'accService', 'localStorageService', '$loca
 
 angular.module('berger').directive('myaccNavbar', myaccNavbar);
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 const paginationComponent = ($rootScope, competitionService) => {
     return {
         templateUrl: 'components/pagination/pagination.html',
@@ -622,7 +775,7 @@ paginationComponent.$inject = ['$rootScope', 'competitionService'];
 
 angular.module('berger').directive('pagination', paginationComponent);
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 const rainWithIcons = $timeout => {
 	return {
 		restrict: 'A',
@@ -685,7 +838,7 @@ rainWithIcons.$inject = ['$timeout'];
 
 angular.module('berger').directive('rainWithIcons', rainWithIcons);
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 const standingsComponent = $uibModal => {
     return {
         templateUrl: 'components/standings/standings.html',
@@ -804,7 +957,7 @@ standingsComponent.$inject = ['$uibModal'];
 
 angular.module('berger').directive('standings', standingsComponent);
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 const tableComponent = () => {
     return {
         templateUrl: 'components/table/table-component.html',
@@ -823,7 +976,7 @@ tableComponent.$inject = [];
 
 angular.module('berger').directive('tableComponent', tableComponent);
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 let _$http;
 
 class accService {
@@ -900,7 +1053,7 @@ accService.$inject = ['$http'];
 
 angular.module('berger').service('accService', accService);
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 let _$http;
 
 class betService {
@@ -985,7 +1138,7 @@ betService.$inject = ['$http'];
 
 angular.module('berger').service('betService', betService);
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 let _$http;
 
 class competitionService {
@@ -1032,7 +1185,7 @@ competitionService.$inject = ['$http'];
 angular.module('berger').service('competitionService', competitionService);
 '';
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 let _$http;
 let _games;
 
@@ -1065,7 +1218,7 @@ gameService.$inject = ['$http'];
 
 angular.module('berger').service('gameService', gameService);
 
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 let _$http;
 let _players;
 
@@ -1108,7 +1261,7 @@ playerService.$inject = ['$http'];
 
 angular.module('berger').service('playerService', playerService);
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 angular.module('berger').service('socketService', function () {
 
 	this._socket = null;
@@ -1146,4 +1299,4 @@ angular.module('berger').service('socketService', function () {
 	return obj;
 });
 
-},{}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]);
+},{}]},{},[1,2,3,4,5,6,7,9,8,10,11,12,13,14,15,16,17,18,19,20,21,22]);

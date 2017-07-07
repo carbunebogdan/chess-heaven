@@ -1,0 +1,26 @@
+
+		<div class="col-lg-12" layout="column">
+			<div class="chatContainer" id="chat">
+				<div ng-repeat="message in messages track by $index">
+					<div class="alert alert-info chatMessage" id="anotherMsg" ng-if="message.sender!=account.username">
+						<p style="font-weight: bolder;display: inline-block;">{{message.sender}}</p> <p style="display: inline-block;">says:</p>
+						<p style="word-wrap: break-word;">{{message.message}}</p>
+					</div>
+					<div class="alert alert-success chatMessage" id="myMsg" ng-if="message.sender==account.username">
+						<p style="font-weight: bolder;display: inline-block;">me</p> <p style="display: inline-block;">:</p>
+						<p style="word-wrap: break-word;">{{message.message}}</p>
+					</div>
+				</div>
+			</div>
+			<div >
+				<span flex></span>
+				<form name="msgForm" ng-submit="send()">
+					<md-input-container>
+						<label>Message</label>
+						<input type="text" name="message" ng-model="message.message" ng-focus="changeTitle()">
+					</md-input-container>
+				</form>
+			</div>
+			
+		</div>		
+

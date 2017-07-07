@@ -11,7 +11,9 @@
     "angular-local-storage": "latest",
     "angular-messages": "latest",
     "bootstrap": "3.3.7",
-    "socket.io-client": "latest"
+    "socket.io-client": "latest",
+    "chess.js": "latest",
+    "chessboard.js": "latest"
   },
   "resolutions": {
     "angular": "1.6.3"

@@ -1,0 +1,16 @@
+<div class="panel panel-default">
+    <div class="panel-heading">Game</div>
+    <div class="panel-body" style="padding: 1rem;" >
+        <div layout="row" layout-sm="column" layout-xs="column" layout-md="column" style="width: 100%">
+            <div id="board" style="width: 60%;margin:1rem"  ></div>
+            <div flex></div>
+            <div  style="margin:1rem; width: 40%">
+               <chat-directive></chat-directive> 
+            </div>
+            
+        </div>
+        <form name="moveFrm">
+        <input type="text" ng-model="source"><input type="text" ng-model="target">
+        <md-button type="submit" class="md-primary md-raised" ng-click="setpos(source,target)">Make a move</md-button></form>     
+    </div>
+</div>

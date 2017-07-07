@@ -13,7 +13,8 @@ const playerModel = new Schema({
         match: /\S+@\S+\.\S+/
     },
     club: {
-        type: String
+        type: String,
+        default: null
     },
     date: {
         type: Date,

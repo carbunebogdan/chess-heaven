@@ -34,6 +34,13 @@ const io = require('socket.io')(server);
 io.on('connection', function (socket) {
 	console.log('The socket is on!');
 
+	// new message
+	socket.on('newMessage', function (from) {
+		socket.broadcast.emit('newMessage', {
+			source: from
+		});
+	});
+
 	// When we recieve that a new competition was added send back so we update all opened applications
 	socket.on('newCompetition', function (from) {
 
