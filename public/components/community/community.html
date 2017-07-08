@@ -1,0 +1,33 @@
+<div>
+	<md-progress-circular md-mode="indeterminate" ng-if="playerLoading" style="display: block;margin: auto"></md-progress-circular>
+    <table class="table table-striped"> 
+                <thead> 
+                    <tr> 
+                        <th>Name</th>  
+                        <th>Status</th> 
+                        <th></th>
+                        <th>sockId</th>   
+                    </tr> 
+                </thead> 
+                <tbody> 
+                    <tr ng-repeat="player in players"> 
+                        <td>
+                            {{player.username}}
+                        </td>
+                        <td>
+                        	<p ng-if="player.status==0">
+                        		Offline
+                        	</p>
+                            <p ng-if="player.status==1">Available</p>
+                            <p ng-if="player.status==2">Ingame</p>
+                        </td>
+                        <td>
+                            <md-button class="md-warn md-raised" ng-disabled="player.status==0|| player.status==2" ng-click="sendMsgToSocket(player.sockId)">Challenge</md-button>
+                        </td>
+                        <td>
+                        	{{player.sockId}}
+                        </td>
+                    </tr> 
+                </tbody> 
+            </table>
+</div>

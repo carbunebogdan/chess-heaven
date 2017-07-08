@@ -2,19 +2,19 @@ angular.module('berger').service('socketService', function(){
 
 	this._socket = null;
 	var obj = {
-		registerSocket: function() {
+		registerSocket() {
 	        // this._socket = io('http://localhost:3000');
 	        this._socket = io.connect();
 	    },
 
-	    unregisterSocket: function() {
+	    unregisterSocket() {
 	        if (this._socket) {
 	            this._socket.disconnect();
 	            this._socket = null;
 	        }
 	    },
 
-	    socketOn: function(eventName, cb) {
+	    socketOn(eventName, cb) {
 	        if (!eventName) {
 	            throw new Error('Must provide an event to emit for');
 	        }
@@ -25,7 +25,7 @@ angular.module('berger').service('socketService', function(){
 	        this._socket.on(eventName, cb);
 	    },
 
-	    socketEmit: function(eventName, data) {
+	    socketEmit(eventName, data) {
 	        if (!eventName) {
 	            throw new Error('Must provide an event to emit for');
 	        }

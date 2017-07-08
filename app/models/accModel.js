@@ -19,11 +19,11 @@ const accModel = new Schema({
     type: {
         type: Number,
         required: true,
-        default: 0 // Options: 0, 1, 2. Explained: referee,gambler,player
+        default: 0 // Options: 0, 1, 2. Explained: referee, gambler, player.
     },
     status: {
         type: Number,
-        default: 0 // Options: 0,1. Explained: inactive,active.
+        default: 0 // Options: 0, 1, 2. Explained: inactive, active, ingame.
     },
     money:{
         type: Number,
@@ -40,7 +40,11 @@ const accModel = new Schema({
     },
     usable:{
         type: Number,
-        default: 0
+        default: 0 // Options: 0,1. Explained: not activated, activated.
+    },
+    sockId:{
+        type: String,
+        default: null //temporary socket connection id
     }
 });
 

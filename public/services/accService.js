@@ -34,10 +34,21 @@ class accService {
         return _$http(configObject);
     }
 
+
+
     getLatestAccs() {
         const configObject = {
             method: 'GET',
             url: '/acc'
+        };
+        return _$http(configObject);
+    }
+
+    getPlayers(accData){
+        const configObject = {
+            method: 'POST',
+            url: '/players',
+            data: JSON.stringify(accData)
         };
         return _$http(configObject);
     }

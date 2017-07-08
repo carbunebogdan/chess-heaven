@@ -1,4 +1,4 @@
-const myaccNavbar = ($rootScope,accService,localStorageService,$location,socketService) => {
+const myaccNavbar = ($window,$rootScope,accService,localStorageService,$location,socketService) => {
     return {
         templateUrl: 'components/myacc_navbar/myacc-navbar.html',
         restrict: 'E',
@@ -12,6 +12,8 @@ const myaccNavbar = ($rootScope,accService,localStorageService,$location,socketS
                     accService.login(scope.account).then((rsp) => {
                         scope.logoutLoading=false;
                         if(rsp.data){
+                            if($rootScope.account.type==2)
+                                socketService.socketEmit('updateList',{user:$rootScope.account.username,status:0});
                             $rootScope.account=null;
                             localStorageService.clearAll();
                             $location.path('/login');
@@ -20,6 +22,8 @@ const myaccNavbar = ($rootScope,accService,localStorageService,$location,socketS
                         }
                     });
             }
+
+
 
             socketService.socketOn('newBet', (resp) => {
                 scope.userRefresh={
@@ -51,7 +55,7 @@ const myaccNavbar = ($rootScope,accService,localStorageService,$location,socketS
 }
 };
 
-myaccNavbar.$inject = ['$rootScope','accService','localStorageService','$location','socketService'];
+myaccNavbar.$inject = ['$window','$rootScope','accService','localStorageService','$location','socketService'];
 
 angular.module('berger').directive('myaccNavbar', myaccNavbar);
 

@@ -28,7 +28,7 @@ class containerController{
             this.subViewValue = 'myacc';
         }
         
-        
+
 
         if ($state.params && $state.params.compId) {
             this.currentCompId = $state.params.compId;
@@ -36,7 +36,13 @@ class containerController{
 
         // Register socket
         socketService.registerSocket();
-        
+
+        // Send message to update players list if connected account is a player
+        if($rootScope.account.type==2){
+            socketService.socketEmit('updateList',{user:$rootScope.account.username, status:1});
+        }
+
+
         // Watch for socket incoming data
         socketService.socketOn('newCompetition', (resp) => {
             competitionService.getCompetition().then((resp) => {
@@ -46,6 +52,9 @@ class containerController{
 
 
     }
+
+
+
 }
 
 containerController.$inject = ['$state', 'playerRsp', 'competitionRsp', 'gamesRsp', 'socketService', 'competitionService','$location','localStorageService','$rootScope','accService'];

@@ -132,5 +132,14 @@ router.route('/accmoney')
             
         });
     });
+router.route('/players')
+    .post((request,res)=>{
+        accModel.find({'type':2,'username':{$ne: request.body.username}}, {username:1,status:1,sockId:1}, (err, accounts) => {
+            if (err) {
+                return res.send(err);
+            }
+            res.json(accounts);}).sort( { join_date: -1 } );
+    });
+
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const gamePlatform = () => {
+const gamePlatform = ($rootScope,socketService) => {
 	return {
 		templateUrl: 'components/game_platform/game-platform.html',
 		restrict: 'E',
@@ -60,11 +60,15 @@ const gamePlatform = () => {
 
 			
 			var board = ChessBoard('#board',cfg);
+
+			scope.joinRoom=()=>{
+				socketService.socketEmit('joinGame', {user:$rootScope.account.username, room: 'game'});
+			}
 		
 		}
 	}
 }
 
-gamePlatform.$inject = [];
+gamePlatform.$inject = ['$rootScope','socketService'];
 
 angular.module('berger').directive('gamePlatform', gamePlatform);

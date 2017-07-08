@@ -5,9 +5,9 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
         link: (scope) => {
             scope.messages=[{
                 sender:'robo',
-                message:'Salut! Bine ai venit!'
+                message:'Competitia a inceput!'
             }]
-            var msgSound = new Audio('../../sounds/msg.mp3');
+            
             scope.account = $rootScope.account;
             scope.message = {
                 sender: $rootScope.account.username,
@@ -47,7 +47,7 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
              $window.onbeforeunload = scope.onExit;
 
             scope.changeTitle = () => {
-                document.title = 'Bogodan Chatroom';
+                document.title = 'Chess Heaven';
             }
             scope.send = () => {
                 if (scope.message.message != '') {
@@ -64,13 +64,12 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
 
 
             scope.onEnter();
-            // Watch for socket incoming data
+            // Watch for socket incoming messages
             socketService.socketOn('newMessage', (rsp) => {
                 if(rsp.source.sender!=$rootScope.account.username){
                     scope.messages.push(rsp.source);
                     scope.$apply();
                     scrollChat();
-                    msgSound.play();
                     document.title = 'Message from '+rsp.source.sender; 
                 }
 

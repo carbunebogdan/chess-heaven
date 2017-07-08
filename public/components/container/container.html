@@ -160,8 +160,8 @@
         <li role="presentation" ng-class="{active: contCtrl.viewValue === 'manager'}">
             <a href="/#!/manager" ng-click="changeView('manager')">Manage Account</a>
         </li>
-        <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'boards'}">
-            <a href="" ng-click="changeView('board')">Boards</a>
+        <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'players'}">
+            <a href="" ng-click="changeView('players')">Players</a>
         </li>
         <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'currGame'}">
             <a href="" ng-click="changeView('game')">Game</a>
@@ -184,28 +184,8 @@
 
         <!-- My account -->
         <md-content ng-if="contCtrl.subViewValue=='myacc'" class="md-whiteframe-15dp" style="padding: 2rem">
-            <h3>My account data</h3>
-            <hr>
-            <h4>Add money to my account</h4>
-            <hr>
-            <form name="addMoney" layout="row" layout-xs="column" ng-submit="updateMoney()">
-                <md-input-container class="md-block" style="width: 15rem;">
-                    <label>Money ammount</label>
-                    <input required type="number" step="any" name="money" ng-model="userMoney.ammount" min="1" max="500" />
-                    <div ng-messages="addMoney.money.$error" multiple md-auto-hide="false">
-                        <div ng-message="required">
-                            You need to enter a value.
-                        </div>
-                        <div ng-message="min">
-                            You can't add $0, it's hilarious!
-                        </div>
-                        <div ng-message="max">
-                            {{addMoney.money.$viewValue | currency:"$":0}} ? You can only add a maximum of $500 at once.
-                        </div>
-                    </div>
-                </md-input-container>
-                <md-button class="md-primary md-raised" type="submit">Add money</md-button>
-            </form>
+            <h3>Statistics</h3>
+            
         </md-content>
 
         <!-- Current Bids -->
@@ -218,6 +198,12 @@
             <h4>Active</h4>
             <hr>
             
+        </md-content>
+    </div>
+
+    <div ng-show="contCtrl.viewValue === 'players'">
+        <md-content class="md-whiteframe-15dp" style="padding: 2rem">
+            <community-directive></community-directive>
         </md-content>
     </div>
 
