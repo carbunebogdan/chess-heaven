@@ -157,13 +157,13 @@
     <myacc-navbar></myacc-navbar>
     <!-- Main Menu -->
     <ul class="nav nav-tabs nav-justified bar">
-        <li role="presentation" ng-class="{active: contCtrl.viewValue === 'manager'}">
-            <a href="/#!/manager" ng-click="changeView('manager')">Manage Account</a>
-        </li>
-        <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'players'}">
-            <a href="" ng-click="changeView('players')">Players</a>
-        </li>
-        <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'currGame'}">
+            <li role="presentation" ng-hide="contCtrl.ingame" ng-class="{active: contCtrl.viewValue === 'manager'}">
+                <a href="/#!/manager" ng-click="changeView('manager')">Manage Account</a>
+            </li>
+            <li role="presentation" ng-hide="contCtrl.ingame" ng-class="{active: contCtrl.viewValue === 'players'}">
+                <a href="" ng-click="changeView('players')">Players</a>
+            </li>
+        <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'currGame'}" ng-if="contCtrl.ingame">
             <a href="" ng-click="changeView('game')">Game</a>
         </li>
     </ul>

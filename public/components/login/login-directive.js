@@ -37,6 +37,7 @@ const loginDirective = (accService,$rootScope,$location,localStorageService,$mdD
             // Get latest accounts
             scope.refreshAccs();
 
+
             // Login while checking if account is activated
             scope.login=()=>{
                     scope.loginLoading=true;
@@ -117,6 +118,9 @@ const loginDirective = (accService,$rootScope,$location,localStorageService,$mdD
 
             // Check 4-digit code
             scope.checkCode=(insCode)=>{
+                if(scope.notActivated){
+                    scope.userSign=scope.userLogin;
+                }
                 scope.checkLoading=true;
                 if(insCode==code){
                     accService.activateAcc(scope.userSign).then((rsp)=>{

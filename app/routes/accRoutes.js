@@ -139,6 +139,15 @@ router.route('/players')
                 return res.send(err);
             }
             res.json(accounts);}).sort( { join_date: -1 } );
+    })
+    .put((request,res)=>{
+        accModel.find({'_id':request.body.id},{},(err,player)=>{
+            if (err) {
+                return res.send(err);
+                
+            }
+            res.json(player);
+        })
     });
 
 

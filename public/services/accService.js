@@ -34,7 +34,14 @@ class accService {
         return _$http(configObject);
     }
 
-
+    getPlayerById(data){
+        const configObject = {
+            method: 'PUT',
+            url: '/players',
+            data: JSON.stringify(data)
+        };
+        return _$http(configObject);
+    }
 
     getLatestAccs() {
         const configObject = {

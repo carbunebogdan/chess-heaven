@@ -9,6 +9,9 @@ const db = require('./app/connection');
 const app = express();
 const port = 3000;
 const accModel = require('./app/models/accModel');
+const compModel = require('./app/models/compModel');
+const gameModel = require('./app/models/gameModel');
+const generate = require('./app/game_logic/generateGames');
 
 // Set views path, template engine and default layout
 app.use('/lib', serveStatic(path.normalize(__dirname) + '/bower_components'));
@@ -55,7 +58,7 @@ var statusAndsockId=(user,status,sockId)=>{
             
             
         });
-	}
+	};
 	
 }
 
@@ -63,12 +66,33 @@ var statusAndsockId=(user,status,sockId)=>{
 
 io.on('connection',(socket)=>{
 	console.log('The socket is on!');
-
+	var currentRoom=null;
 	//Joining a game
 	socket.on('joinGame',(from)=>{
-		console.log(from);
-		console.log(socket.id);
-		// socket.join();
+		socket.room=from;
+		socket.join(socket.room);
+		socket.broadcast.to(socket.room).emit('roomTest',{
+			source:'here I am'
+		});
+		currentRoom=socket.room;
+		accModel.findOneAndUpdate(
+            { 'sockId': socket.id },
+            { $set: { 'status':2 } },
+            { new:true }, (err, account) => {
+            if (err) {
+                console.log(err);
+            }
+            if(account){
+	            socket.broadcast.emit('updateList',{
+					source:{
+						user:account.username,
+						status:2,
+						sockId:null
+					}
+				});	
+            }
+            
+        });
 
 	});
 
@@ -93,8 +117,68 @@ io.on('connection',(socket)=>{
         });
 	})
 
-	socket.on('msg',(from)=>{
-		socket.broadcast.to(from.sockId).emit('msg',{
+	socket.on('challengeResponse',(from)=>{
+
+		socket.broadcast.to(from.sockId).emit('challengeResponse',{
+			source:from
+		})
+
+		if(from.response==1){
+			socket.room=from.user+'vs'+from.challenger;
+			socket.join(socket.room);
+			currentRoom=socket.room;
+			accModel.findOneAndUpdate(
+	            { 'sockId': socket.id },
+	            { $set: { 'status':2 } },
+	            { new:true }, (err, account) => {
+	            if (err) {
+	                console.log(err);
+	            }
+	            if(account){
+		            socket.broadcast.emit('updateList',{
+						source:{
+							user:account.username,
+							status:2,
+							sockId:null
+						}
+					});	
+	            }
+            
+        	});
+
+        const compObj = {
+            name: from.user+' vs '+from.challenger,
+            rounds: 1
+        };
+        const comp = new compModel(compObj);
+        comp.save((err, competitions) => {
+            if (err) {
+                return res.send(err);
+            }
+
+            const compId = competitions._id;
+            const generatedGames = generate.generateGames(compId, [from.p1_id,from.p2_id]);
+            if (generatedGames) {
+                return gameModel.create(generatedGames, (err, data) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    socket.broadcast.emit('newCompetition', {
+						source: from
+					});
+                });
+            }
+            console.log('Something went wrong!');
+        });
+
+		}
+		
+	})
+
+
+	socket.on('challenge',(from)=>{
+		from.challengerId=socket.id;
+		socket.broadcast.to(from.sockId).emit('challenge',{
 			source:from
 		})
 	})
@@ -116,7 +200,7 @@ io.on('connection',(socket)=>{
 
 	// new message
 	socket.on('newMessage', (from)=>{
-		socket.broadcast.emit('newMessage', {
+		socket.broadcast.to(currentRoom).emit('newMessage', {
 			source: from
 		});
 	});

@@ -19,18 +19,7 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
                     scrollTop: chat.scrollHeight
                 }, 300);
             }
-            scope.onEnter = () => {
-                scope.message = {
-                    sender: $rootScope.account.username,
-                    message: $rootScope.account.username + ' joined !'
-                };
-                scope.send();
 
-                scope.account.status = 1;
-                localStorageService.set('account', scope.account);
-                $rootScope.account = scope.account;
-                socketService.socketEmit('account', scope.account);
-            }
 
 
             scope.onExit = () => {
@@ -38,7 +27,7 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
                     sender: $rootScope.account.username,
                     message: $rootScope.account.username + ' left..'
                 };
-                // scope.send();
+                scope.send();
                 scope.account.status = 0;
                 localStorageService.set('account', scope.account)
                 socketService.socketEmit('account', scope.account);
@@ -63,14 +52,13 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
             }
 
 
-            scope.onEnter();
             // Watch for socket incoming messages
             socketService.socketOn('newMessage', (rsp) => {
                 if(rsp.source.sender!=$rootScope.account.username){
                     scope.messages.push(rsp.source);
                     scope.$apply();
                     scrollChat();
-                    document.title = 'Message from '+rsp.source.sender; 
+                    
                 }
 
             });

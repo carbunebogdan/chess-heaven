@@ -5,8 +5,7 @@
                     <tr> 
                         <th>Name</th>  
                         <th>Status</th> 
-                        <th></th>
-                        <th>sockId</th>   
+                        <th></th>  
                     </tr> 
                 </thead> 
                 <tbody> 
@@ -22,10 +21,7 @@
                             <p ng-if="player.status==2">Ingame</p>
                         </td>
                         <td>
-                            <md-button class="md-warn md-raised" ng-disabled="player.status==0|| player.status==2" ng-click="sendMsgToSocket(player.sockId)">Challenge</md-button>
-                        </td>
-                        <td>
-                        	{{player.sockId}}
+                            <md-button class="md-warn md-raised" ng-disabled="player.status==0|| player.status==2" ng-click="challengePlayer(player.sockId)">Challenge</md-button>
                         </td>
                     </tr> 
                 </tbody> 

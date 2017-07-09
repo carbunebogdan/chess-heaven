@@ -27,12 +27,14 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 		    	}
 		    	scope.$apply();
 		    })
-		    socketService.socketOn('msg',(from)=>{
-		    	console.log(from.source.msg);
-		    })
 
-		    scope.sendMsgToSocket=(sockId)=>{
-		    	socketService.socketEmit('msg',{msg:'pleosc!',sockId:sockId});
+
+		    scope.challengePlayer=(sockId)=>{
+		    	socketService.socketEmit('challenge',{
+		    		user:$rootScope.account.username,
+		    		userId:$rootScope.account._id,
+		    		sockId:sockId
+		    	});
 		    }
         }
     }

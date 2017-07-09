@@ -149,25 +149,13 @@ const chatDirective = ($rootScope, socketService, $window, accService, localStor
                     scrollTop: chat.scrollHeight
                 }, 300);
             };
-            scope.onEnter = () => {
-                scope.message = {
-                    sender: $rootScope.account.username,
-                    message: $rootScope.account.username + ' joined !'
-                };
-                scope.send();
-
-                scope.account.status = 1;
-                localStorageService.set('account', scope.account);
-                $rootScope.account = scope.account;
-                socketService.socketEmit('account', scope.account);
-            };
 
             scope.onExit = () => {
                 scope.message = {
                     sender: $rootScope.account.username,
                     message: $rootScope.account.username + ' left..'
                 };
-                // scope.send();
+                scope.send();
                 scope.account.status = 0;
                 localStorageService.set('account', scope.account);
                 socketService.socketEmit('account', scope.account);
@@ -191,14 +179,12 @@ const chatDirective = ($rootScope, socketService, $window, accService, localStor
                 }
             };
 
-            scope.onEnter();
             // Watch for socket incoming messages
             socketService.socketOn('newMessage', rsp => {
                 if (rsp.source.sender != $rootScope.account.username) {
                     scope.messages.push(rsp.source);
                     scope.$apply();
                     scrollChat();
-                    document.title = 'Message from ' + rsp.source.sender;
                 }
             });
         }
@@ -238,12 +224,13 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 								}
 								scope.$apply();
 						});
-						socketService.socketOn('msg', from => {
-								console.log(from.source.msg);
-						});
 
-						scope.sendMsgToSocket = sockId => {
-								socketService.socketEmit('msg', { msg: 'pleosc!', sockId: sockId });
+						scope.challengePlayer = sockId => {
+								socketService.socketEmit('challenge', {
+										user: $rootScope.account.username,
+										userId: $rootScope.account._id,
+										sockId: sockId
+								});
 						};
 				}
 		};
@@ -379,12 +366,37 @@ const gameComponent = ($rootScope, gameService, accService, betService, localSto
             account: '=' //[acc type]
         },
         link: scope => {
+            scope.onlineGame = false;
             scope.game = {
                 status: '2' //draw
             };
             scope.canBet = true;
-            scope.playerOne = scope.players.filter(obj => obj._id === scope.gameData.p1_id)[0];
-            scope.playerTwo = scope.players.filter(obj => obj._id === scope.gameData.p2_id)[0];
+            if (scope.players.filter(obj => obj._id === scope.gameData.p1_id)[0]) {
+                scope.playerOne = scope.players.filter(obj => obj._id === scope.gameData.p1_id)[0];
+                scope.playerTwo = scope.players.filter(obj => obj._id === scope.gameData.p2_id)[0];
+            } else {
+                scope.onlineGame = true;
+                scope.playerOne = {
+                    name: '',
+                    club: '',
+                    email: ''
+                };
+                scope.playerTwo = {
+                    name: '',
+                    club: '',
+                    email: ''
+                };
+                accService.getPlayerById({ id: scope.gameData.p1_id }).then(rsp => {
+                    scope.playerOne.name = rsp.data[0].username;
+                    scope.playerOne.club = rsp.data[0].club;
+                    scope.playerOne.email = rsp.data[0].email;
+                });
+                accService.getPlayerById({ id: scope.gameData.p2_id }).then(rsp => {
+                    scope.playerTwo.name = rsp.data[0].username;
+                    scope.playerTwo.club = rsp.data[0].club;
+                    scope.playerTwo.email = rsp.data[0].email;
+                });
+            }
 
             scope.bet = {
                 gameId: '',
@@ -686,6 +698,9 @@ const loginDirective = (accService, $rootScope, $location, localStorageService, 
 
             // Check 4-digit code
             scope.checkCode = insCode => {
+                if (scope.notActivated) {
+                    scope.userSign = scope.userLogin;
+                }
                 scope.checkLoading = true;
                 if (insCode == code) {
                     accService.activateAcc(scope.userSign).then(rsp => {
@@ -725,14 +740,15 @@ loginDirective.$inject = ['accService', '$rootScope', '$location', 'localStorage
 angular.module('berger').directive('loginDirective', loginDirective);
 
 },{}],13:[function(require,module,exports){
-const myaccNavbar = ($window, $rootScope, accService, localStorageService, $location, socketService) => {
+const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageService, $location, socketService, $timeout) => {
     return {
         templateUrl: 'components/myacc_navbar/myacc-navbar.html',
         restrict: 'E',
         link: scope => {
-
+            var newChallengeSound = new Audio('../../sounds/newChallenge.mp3');
             scope.account = $rootScope.account;
-
+            var challengerUserId = null;
+            var challengeDeclined = false;
             scope.logout = () => {
                 scope.logoutLoading = true;
                 scope.account.status = 0;
@@ -749,6 +765,7 @@ const myaccNavbar = ($window, $rootScope, accService, localStorageService, $loca
                 });
             };
 
+            // on new bet refresh user data
             socketService.socketOn('newBet', resp => {
                 scope.userRefresh = {
                     username: scope.account.username,
@@ -762,6 +779,7 @@ const myaccNavbar = ($window, $rootScope, accService, localStorageService, $loca
                 });
             });
 
+            // update money event
             socketService.socketOn('updateMoney', resp => {
                 scope.userRefresh = {
                     username: scope.account.username,
@@ -774,11 +792,104 @@ const myaccNavbar = ($window, $rootScope, accService, localStorageService, $loca
                     scope.account = $rootScope.account;
                 });
             });
+
+            // show challenge modal 
+            scope.showChallenge = () => {
+                $mdDialog.show({
+                    scope: scope.$new(),
+                    templateUrl: 'components/challenge_modal/challenge.html',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose: false,
+                    fullscreen: scope.customFullscreen
+                });
+            };
+
+            // receive challenge and open modal
+            socketService.socketOn('challenge', from => {
+                challengeAction = false;
+                scope.challengerName = from.source.user;
+                scope.challengerId = from.source.challengerId;
+                challengerUserId = from.source.userId;
+                scope.showChallenge();
+                timeTick(100);
+                newChallengeSound.play();
+                document.title = from.source.user + ' challenged you!';
+            });
+
+            // receive challenge response
+            socketService.socketOn('challengeResponse', from => {
+
+                if (from.source.response == 0) {
+                    scope.challengedName = from.source.user;
+                    $mdDialog.show({
+                        scope: scope.$new(),
+                        templateUrl: 'components/challenge_modal/response.html',
+                        parent: angular.element(document.body),
+                        clickOutsideToClose: true,
+                        fullscreen: scope.customFullscreen
+                    });
+                } else {
+                    socketService.socketEmit('joinGame', from.source.user + 'vs' + from.source.challenger);
+                    scope.contCtrl.ingame = true;
+                    scope.contCtrl.viewValue = 'game';
+                    scope.$apply();
+                }
+            });
+
+            var timeTick = time => {
+                if (challengeAction) {
+                    return false;
+                }
+                scope.time = time;
+
+                if (scope.time == 0) {
+                    scope.declineChallenge();
+                } else {
+                    $timeout(() => {
+                        timeTick(scope.time - 1);
+                    }, 100);
+                }
+            };
+
+            scope.closeResp = () => {
+                $mdDialog.hide();
+            };
+
+            // decline challenge
+            scope.declineChallenge = () => {
+                document.title = 'Chess Heaven';
+                challengeAction = true;
+                $mdDialog.hide();
+                socketService.socketEmit('challengeResponse', {
+                    user: $rootScope.account.username,
+                    response: 0,
+                    sockId: scope.challengerId
+                });
+            };
+
+            scope.acceptChallenge = () => {
+                document.title = 'Chess Heaven';
+                challengeAction = true;
+                $mdDialog.hide();
+                socketService.socketEmit('challengeResponse', {
+                    user: $rootScope.account.username,
+                    challenger: scope.challengerName,
+                    response: 1,
+                    sockId: scope.challengerId,
+                    p1_id: $rootScope.account._id,
+                    p2_id: challengerUserId
+                });
+            };
+
+            socketService.socketOn('roomTest', from => {
+                scope.contCtrl.ingame = true;
+                scope.contCtrl.viewValue = 'game';
+            });
         }
     };
 };
 
-myaccNavbar.$inject = ['$window', '$rootScope', 'accService', 'localStorageService', '$location', 'socketService'];
+myaccNavbar.$inject = ['$mdDialog', '$window', '$rootScope', 'accService', 'localStorageService', '$location', 'socketService', '$timeout'];
 
 angular.module('berger').directive('myaccNavbar', myaccNavbar);
 
@@ -1060,6 +1171,15 @@ class accService {
             method: 'POST',
             url: '/activate',
             data: JSON.stringify(accData)
+        };
+        return _$http(configObject);
+    }
+
+    getPlayerById(data) {
+        const configObject = {
+            method: 'PUT',
+            url: '/players',
+            data: JSON.stringify(data)
         };
         return _$http(configObject);
     }

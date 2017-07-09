@@ -24,6 +24,7 @@ class playerService {
         return _$http(configObject);
     }
 
+
     deletePlayer(id) {
         const promise = _$http({
                 method: 'DELETE',

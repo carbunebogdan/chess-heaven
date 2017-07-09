@@ -83,7 +83,7 @@
 						</div>
 						
 					</div>
-				<div ng-if="gameData.status === 0">
+				<div ng-if="gameData.status === 0 && !onlineGame">
 					<!-- Referee -->
 					<form name="endGameForm" novalidate ng-if="account.type==0">
 						

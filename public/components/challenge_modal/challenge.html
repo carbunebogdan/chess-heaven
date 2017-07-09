@@ -1,0 +1,22 @@
+<md-dialog>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>{{challengerName}} challenged you!</h2>
+            <h2 ng-if="false">loading...</h2>
+            <span flex></span>
+        </div>
+    </md-toolbar>
+    <md-dialog-content style="width: 80%;margin: auto">
+        <br>
+        <h4 style="text-align: center">Time is ticking!</h4>
+        <md-progress-circular md-mode="determinate" value="{{time}}" style="display: block; margin:auto"></md-progress-circular>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="declineChallenge()">
+                Decline
+            </md-button>
+            <md-button ng-click="acceptChallenge()">
+                Go!
+            </md-button>
+        </md-dialog-actions>
+</md-dialog>

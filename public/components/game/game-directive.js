@@ -10,12 +10,39 @@ const gameComponent = ($rootScope, gameService, accService, betService, localSto
             account: '=' //[acc type]
         },
         link: (scope) => {
+            scope.onlineGame=false;
             scope.game = {
                 status: '2' //draw
             }
             scope.canBet=true;
-            scope.playerOne = scope.players.filter((obj) => obj._id === scope.gameData.p1_id)[0];
-            scope.playerTwo = scope.players.filter((obj) => obj._id === scope.gameData.p2_id)[0];
+            if(scope.players.filter((obj) => obj._id === scope.gameData.p1_id)[0]){
+                scope.playerOne = scope.players.filter((obj) => obj._id === scope.gameData.p1_id)[0];
+                scope.playerTwo = scope.players.filter((obj) => obj._id === scope.gameData.p2_id)[0];
+            }else{
+                scope.onlineGame=true;
+                scope.playerOne={
+                    name:'',
+                    club:'',
+                    email:''
+                }
+                scope.playerTwo={
+                    name:'',
+                    club:'',
+                    email:''
+                }
+                accService.getPlayerById({id:scope.gameData.p1_id}).then((rsp)=>{
+                    scope.playerOne.name=rsp.data[0].username;
+                    scope.playerOne.club=rsp.data[0].club;
+                    scope.playerOne.email=rsp.data[0].email;
+
+                });
+                accService.getPlayerById({id:scope.gameData.p2_id}).then((rsp)=>{
+                    scope.playerTwo.name=rsp.data[0].username;
+                    scope.playerTwo.club=rsp.data[0].club;
+                    scope.playerTwo.email=rsp.data[0].email;
+                });
+            }
+
 
             scope.bet = {
                 gameId: '',
