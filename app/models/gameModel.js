@@ -32,6 +32,14 @@ const gameModel = new Schema({
         type: String,
         required: true,
         default: 0 // Options: 0, 1. Explained: white, black
+    },
+    date:{
+        type: Date,
+        default: new Date().getTime()
+    },
+    room:{
+        type: String,
+        default: null
     }
 });
 

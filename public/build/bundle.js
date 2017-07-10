@@ -134,7 +134,7 @@ const chatDirective = ($rootScope, socketService, $window, accService, localStor
         restrict: 'E',
         link: scope => {
             scope.messages = [{
-                sender: 'robo',
+                sender: 'master',
                 message: 'Competitia a inceput!'
             }];
 
@@ -227,8 +227,8 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 
 						scope.challengePlayer = sockId => {
 								socketService.socketEmit('challenge', {
-										user: $rootScope.account.username,
-										userId: $rootScope.account._id,
+										p1: $rootScope.account.username,
+										p1_id: $rootScope.account._id,
 										sockId: sockId
 								});
 						};
@@ -288,8 +288,25 @@ class containerController {
 
         // Send message to update players list if connected account is a player
         if ($rootScope.account.type == 2) {
-            socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 1 });
+            accService.getPlayerById({ id: $rootScope.account._id }).then(rsp => {
+
+                if (rsp.data[0].status == 2) {
+                    $rootScope.account = rsp.data[0];
+                    socketService.socketEmit('I was in a game', {
+                        id: $rootScope.account._id
+                    });
+                    this.ingame = true;
+                    this.viewValue = 'game';
+                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 2 });
+                } else {
+                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 1 });
+                }
+            });
         }
+
+        socketService.socketOn('gameId', from => {
+            this.currGameId = from;
+        });
 
         // Watch for socket incoming data
         socketService.socketOn('newCompetition', resp => {
@@ -500,73 +517,181 @@ gameComponent.$inject = ['$rootScope', 'gameService', 'accService', 'betService'
 angular.module('berger').directive('game', gameComponent);
 
 },{}],10:[function(require,module,exports){
-const gamePlatform = ($rootScope, socketService) => {
-			return {
-						templateUrl: 'components/game_platform/game-platform.html',
-						restrict: 'E',
-						link: scope => {
+const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameService, competitionService, betService) => {
+    return {
+        templateUrl: 'components/game_platform/game-platform.html',
+        restrict: 'E',
+        link: scope => {
 
-									var game = new Chess();
+            var game = new Chess();
 
-									// do not pick up pieces if the game is over
-									// only pick up pieces for White
-									var onDragStart = function (source, piece, position, orientation) {
-												if (game.in_checkmate() === true || game.in_draw() === true || piece.search(/^b/) !== -1) {
-															return false;
-												}
-									};
-									var onDrop = function (source, target) {
-												console.log(source);
-												console.log(target);
-												// see if the move is legal
-												var move = game.move({
-															from: source,
-															to: target,
-															promotion: 'q' // NOTE: always promote to a queen for example simplicity
-												});
+            // do not pick up pieces if the game is over
+            // only pick up pieces for White
+            var onDragStart = function (source, piece, position, orientation) {
+                if (game.in_checkmate() === true || game.in_draw() === true || piece.search(/^b/) !== -1) {
+                    return false;
+                }
+            };
+            var onDrop = function (source, target) {
+                console.log(source);
+                console.log(target);
 
-												// illegal move
-												if (move === null) return 'snapback';
-									};
+                // see if the move is legal
+                var move = game.move({
+                    from: source,
+                    to: target,
+                    promotion: 'q' // NOTE: always promote to a queen for example simplicity
+                });
 
-									scope.source = '';
-									scope.target = '';
-									scope.setpos = (source, target) => {
-												console.log('begin move');
-												console.log(source);
-												console.log(target);
-												board.move(source + '-' + target);
-												scope.source = scope.target;
-												scope.target = '';
-												console.log('end move');
-									};
+                // illegal move
+                if (move === null) return 'snapback';
 
-									// update the board position after the piece snap
-									// for castling, en passant, pawn promotion
-									var onSnapEnd = function () {
-												board.position(game.fen(), true);
-												console.log(game.fen());
-									};
+                console.log('success');
+            };
 
-									var cfg = {
-												draggable: true,
-												position: 'start',
-												onDragStart: onDragStart,
-												onDrop: onDrop,
-												onSnapEnd: onSnapEnd,
-												showNotation: true
-									};
+            scope.source = '';
+            scope.target = '';
+            scope.setpos = (source, target) => {
+                console.log('begin move');
+                console.log(source);
+                console.log(target);
+                board.move(source + '-' + target);
+                scope.source = scope.target;
+                scope.target = '';
+                console.log('end move');
+            };
 
-									var board = ChessBoard('#board', cfg);
+            // update the board position after the piece snap
+            // for castling, en passant, pawn promotion
+            var onSnapEnd = function () {
+                board.position(game.fen(), true);
+                console.log(game.fen());
+            };
 
-									scope.joinRoom = () => {
-												socketService.socketEmit('joinGame', { user: $rootScope.account.username, room: 'game' });
-									};
-						}
-			};
+            var cfg = {
+                draggable: true,
+                position: 'start',
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                onSnapEnd: onSnapEnd,
+                showNotation: true
+            };
+
+            var board = ChessBoard('#board', cfg);
+
+            scope.joinRoom = () => {
+                socketService.socketEmit('joinGame', { user: $rootScope.account.username, room: 'game' });
+            };
+
+            scope.leaveGameAsk = () => {
+                $mdDialog.show({
+                    scope: scope.$new(),
+                    templateUrl: 'components/leave_game_modal/leaveGameAsk.html',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose: true,
+                    fullscreen: scope.customFullscreen
+                });
+            };
+
+            scope.closeAskDialog = () => {
+                $mdDialog.hide();
+            };
+
+            scope.leaveGame = () => {
+                var result = null;
+                gameService.getGameById(scope.contCtrl.currGameId).then(rsp => {
+                    if ($rootScope.account._id == rsp.data.p1_id) {
+                        result = 3;
+                    } else if ($rootScope.account._id == rsp.data.p2_id) {
+                        result = 1;
+                    }
+
+                    const gameData = {
+                        id: rsp.data._id,
+                        comp_id: rsp.data.comp_id,
+                        round: 1,
+                        status: result,
+                        p1_id: rsp.data.p1_id,
+                        p1_color: rsp.data.p1_color,
+                        p2_id: rsp.data.p2_id,
+                        p2_color: rsp.data.p2_color,
+                        date: rsp.data.date,
+                        room: rsp.data.room
+                    };
+
+                    gameService.endGame(gameData).then(rsp => {
+
+                        $rootScope.$broadcast('gameFinished', 1);
+                        var betResult = {
+                            gameId: scope.currGameId,
+                            status: result
+                        };
+                        betService.updateAllBetsForGame(betResult).then(response => {
+                            var bets = response.data;
+                            if (bets.length > 0) {
+                                for (i = 0; i < bets.length; i++) {
+                                    var userMoney = {
+                                        user: bets[i].userId,
+                                        ammount: 2 * bets[i].money
+                                    };
+                                    accService.updateMoney(userMoney).then(success => {
+                                        socketService.socketEmit('updateMoney', 1);
+                                        socketService.socketEmit('newBet', 1);
+                                    });
+                                }
+                            }
+                        });
+                    });
+
+                    accService.updatePlayerStatus({
+                        id: $rootScope.account._id,
+                        status: 1
+                    }).then(rsp => {
+                        console.log('should emit');
+                        socketService.socketEmit('leftGame', $rootScope.account.username);
+                    });
+
+                    $rootScope.account.status = 1;
+                    scope.contCtrl.ingame = false;
+                    scope.contCtrl.viewValue = 'players';
+                    $mdDialog.destroy();
+
+                    $mdDialog.show({
+                        scope: scope.$new(),
+                        templateUrl: 'components/leave_game_modal/responseLost.html',
+                        parent: angular.element(document.body),
+                        clickOutsideToClose: true,
+                        fullscreen: scope.customFullscreen
+                    });
+                });
+            };
+
+            socketService.socketOn('leftGame', from => {
+                accService.updatePlayerStatus({
+                    id: $rootScope.account._id,
+                    status: 1
+                }).then(rsp => {
+                    $rootScope.account.status = 1;
+                    scope.contCtrl.ingame = false;
+                    scope.contCtrl.viewValue = 'players';
+                    $mdDialog.hide();
+
+                    $mdDialog.show({
+                        scope: scope.$new(),
+                        templateUrl: 'components/leave_game_modal/responseWinByLeave.html',
+                        parent: angular.element(document.body),
+                        clickOutsideToClose: true,
+                        fullscreen: scope.customFullscreen
+                    });
+
+                    socketService.socketEmit('leaveRoom', $rootScope.account.username);
+                });
+            });
+        }
+    };
 };
 
-gamePlatform.$inject = ['$rootScope', 'socketService'];
+gamePlatform.$inject = ['$rootScope', 'socketService', '$mdDialog', 'accService', 'gameService', 'competitionService', 'betService'];
 
 angular.module('berger').directive('gamePlatform', gamePlatform);
 
@@ -807,20 +932,19 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
             // receive challenge and open modal
             socketService.socketOn('challenge', from => {
                 challengeAction = false;
-                scope.challengerName = from.source.user;
-                scope.challengerId = from.source.challengerId;
-                challengerUserId = from.source.userId;
+                scope.challengerName = from.source.p1;
+                scope.challengerId = from.source.p1_sockId;
+                challengerUserId = from.source.p1_id;
                 scope.showChallenge();
                 timeTick(100);
                 newChallengeSound.play();
-                document.title = from.source.user + ' challenged you!';
+                document.title = from.source.p1 + ' challenged you!';
             });
 
             // receive challenge response
             socketService.socketOn('challengeResponse', from => {
-
                 if (from.source.response == 0) {
-                    scope.challengedName = from.source.user;
+                    scope.challengedName = from.source.p2;
                     $mdDialog.show({
                         scope: scope.$new(),
                         templateUrl: 'components/challenge_modal/response.html',
@@ -829,10 +953,14 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                         fullscreen: scope.customFullscreen
                     });
                 } else {
-                    socketService.socketEmit('joinGame', from.source.user + 'vs' + from.source.challenger);
+                    socketService.socketEmit('joinGame', {
+                        room: from.source.p2 + 'vs' + from.source.p1,
+                        game_Id: from.source.game_Id
+                    });
                     scope.contCtrl.ingame = true;
                     scope.contCtrl.viewValue = 'game';
                     scope.$apply();
+                    scope.contCtrl.currGameId = from.source.game_Id;
                 }
             });
 
@@ -861,7 +989,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                 challengeAction = true;
                 $mdDialog.hide();
                 socketService.socketEmit('challengeResponse', {
-                    user: $rootScope.account.username,
+                    p2: $rootScope.account.username,
                     response: 0,
                     sockId: scope.challengerId
                 });
@@ -872,18 +1000,19 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                 challengeAction = true;
                 $mdDialog.hide();
                 socketService.socketEmit('challengeResponse', {
-                    user: $rootScope.account.username,
-                    challenger: scope.challengerName,
+                    p2: $rootScope.account.username,
+                    p1: scope.challengerName,
                     response: 1,
                     sockId: scope.challengerId,
-                    p1_id: $rootScope.account._id,
-                    p2_id: challengerUserId
+                    p2_id: $rootScope.account._id,
+                    p1_id: challengerUserId
                 });
             };
 
-            socketService.socketOn('roomTest', from => {
+            socketService.socketOn('enterGame', from => {
                 scope.contCtrl.ingame = true;
                 scope.contCtrl.viewValue = 'game';
+                scope.contCtrl.currGameId = from.source;
             });
         }
     };
@@ -1177,8 +1306,16 @@ class accService {
 
     getPlayerById(data) {
         const configObject = {
+            method: 'GET',
+            url: '/players/' + data.id
+        };
+        return _$http(configObject);
+    }
+
+    updatePlayerStatus(data) {
+        const configObject = {
             method: 'PUT',
-            url: '/players',
+            url: '/players/',
             data: JSON.stringify(data)
         };
         return _$http(configObject);
@@ -1380,7 +1517,15 @@ class gameService {
     getGames(compId) {
         const configObject = {
             method: 'GET',
-            url: `/game/${compId}`
+            url: `/game/` + compId
+        };
+        return _$http(configObject);
+    }
+
+    getGameById(id) {
+        const configObject = {
+            method: 'GET',
+            url: '/gameById/' + id
         };
         return _$http(configObject);
     }

@@ -10,7 +10,15 @@ class gameService {
     getGames(compId) {
         const configObject = {
             method: 'GET',
-            url: `/game/${compId}`
+            url: `/game/`+compId
+        };
+        return _$http(configObject);
+    }
+
+    getGameById(id){
+        const configObject = {
+            method: 'GET',
+            url: '/gameById/'+id
         };
         return _$http(configObject);
     }

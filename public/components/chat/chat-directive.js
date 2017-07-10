@@ -4,7 +4,7 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
         restrict: 'E',
         link: (scope) => {
             scope.messages=[{
-                sender:'robo',
+                sender:'master',
                 message:'Competitia a inceput!'
             }]
             

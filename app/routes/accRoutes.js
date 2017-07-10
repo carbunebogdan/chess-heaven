@@ -141,7 +141,16 @@ router.route('/players')
             res.json(accounts);}).sort( { join_date: -1 } );
     })
     .put((request,res)=>{
-        accModel.find({'_id':request.body.id},{},(err,player)=>{
+        accModel.findOneAndUpdate({'_id': request.body.id},{$set:{'status':request.body.status}},(err,players)=>{
+            if(err){
+                return res.send(err);
+            }
+           return res.send('success');
+        })
+    })
+router.route('/players/:id')
+    .get((request,res)=>{
+        accModel.find({'_id':request.params.id},{},(err,player)=>{
             if (err) {
                 return res.send(err);
                 

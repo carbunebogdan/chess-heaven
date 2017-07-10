@@ -6,7 +6,8 @@ class containerController{
         
         if(!$rootScope.account)
             $location.path('/login');                              
-                        
+        
+
 
     	// Shared properties throughout the application
         this.players = playerRsp.data;
@@ -39,8 +40,25 @@ class containerController{
 
         // Send message to update players list if connected account is a player
         if($rootScope.account.type==2){
-            socketService.socketEmit('updateList',{user:$rootScope.account.username, status:1});
+            accService.getPlayerById({id:$rootScope.account._id}).then((rsp)=>{
+                
+                if(rsp.data[0].status==2){
+                    $rootScope.account=rsp.data[0];
+                    socketService.socketEmit('I was in a game',{
+                        id:$rootScope.account._id
+                    })
+                    this.ingame=true;
+                    this.viewValue = 'game';
+                    socketService.socketEmit('updateList',{user:$rootScope.account.username, status:2});
+                }else{
+                    socketService.socketEmit('updateList',{user:$rootScope.account.username, status:1});
+                }
+            })
         }
+
+        socketService.socketOn('gameId',(from)=>{
+            this.currGameId=from;
+        })
 
 
         // Watch for socket incoming data

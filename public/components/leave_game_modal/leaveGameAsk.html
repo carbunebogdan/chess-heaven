@@ -1,0 +1,19 @@
+<md-dialog>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Are you really gonna leave the game?</h2>
+            <span flex></span>
+        </div>
+    </md-toolbar>
+    <md-dialog-content style="width: 80%;margin: auto">
+        <br>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="closeAskDialog()">
+                No
+            </md-button>
+            <md-button ng-click="leaveGame()">
+                Yes
+            </md-button>
+        </md-dialog-actions>
+</md-dialog>

@@ -31,8 +31,8 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 
 		    scope.challengePlayer=(sockId)=>{
 		    	socketService.socketEmit('challenge',{
-		    		user:$rootScope.account.username,
-		    		userId:$rootScope.account._id,
+		    		p1:$rootScope.account.username,
+		    		p1_id:$rootScope.account._id,
 		    		sockId:sockId
 		    	});
 		    }

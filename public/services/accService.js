@@ -36,8 +36,16 @@ class accService {
 
     getPlayerById(data){
         const configObject = {
-            method: 'PUT',
-            url: '/players',
+            method: 'GET',
+            url: '/players/'+data.id
+        };
+        return _$http(configObject);
+    }
+
+    updatePlayerStatus(data){
+        const configObject = {
+            method:'PUT',
+            url: '/players/',
             data: JSON.stringify(data)
         };
         return _$http(configObject);

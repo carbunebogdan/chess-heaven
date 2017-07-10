@@ -67,22 +67,21 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
             // receive challenge and open modal
             socketService.socketOn('challenge', (from) => {
                 challengeAction = false;
-                scope.challengerName = from.source.user;
-                scope.challengerId = from.source.challengerId;
-                challengerUserId = from.source.userId;
+                scope.challengerName = from.source.p1;
+                scope.challengerId = from.source.p1_sockId;
+                challengerUserId = from.source.p1_id;
                 scope.showChallenge();
                 timeTick(100);
                 newChallengeSound.play();
-                document.title = from.source.user +' challenged you!'; 
+                document.title = from.source.p1 +' challenged you!'; 
             });
 
             
 
             // receive challenge response
             socketService.socketOn('challengeResponse', (from) => {
-
                 if (from.source.response == 0) {
-                    scope.challengedName = from.source.user;
+                    scope.challengedName = from.source.p2;
                     $mdDialog.show({
                         scope: scope.$new(),
                         templateUrl: 'components/challenge_modal/response.html',
@@ -91,10 +90,14 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                         fullscreen: scope.customFullscreen
                     });
                 }else{
-                    socketService.socketEmit('joinGame',from.source.user+'vs'+from.source.challenger);
+                    socketService.socketEmit('joinGame',{
+                        room:from.source.p2+'vs'+from.source.p1,
+                        game_Id:from.source.game_Id
+                    });
                     scope.contCtrl.ingame=true;
                     scope.contCtrl.viewValue = 'game';
                     scope.$apply();
+                    scope.contCtrl.currGameId=from.source.game_Id;
                 }
 
             })
@@ -124,7 +127,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                 challengeAction = true;
                 $mdDialog.hide();
                 socketService.socketEmit('challengeResponse', {
-                    user: $rootScope.account.username,
+                    p2: $rootScope.account.username,
                     response: 0,
                     sockId: scope.challengerId
                 })
@@ -135,18 +138,19 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                 challengeAction = true;
                 $mdDialog.hide();
                 socketService.socketEmit('challengeResponse', {
-                    user: $rootScope.account.username,
-                    challenger: scope.challengerName,
+                    p2: $rootScope.account.username,
+                    p1: scope.challengerName,
                     response: 1,
                     sockId: scope.challengerId,
-                    p1_id:$rootScope.account._id,
-                    p2_id:challengerUserId
+                    p2_id:$rootScope.account._id,
+                    p1_id:challengerUserId
                 })
             }
 
-            socketService.socketOn('roomTest',(from)=>{
+            socketService.socketOn('enterGame',(from)=>{
                 scope.contCtrl.ingame=true;
                 scope.contCtrl.viewValue = 'game';
+                scope.contCtrl.currGameId=from.source;
             })
 
 

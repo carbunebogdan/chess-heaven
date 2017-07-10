@@ -62,4 +62,14 @@ router.route('/game/:id')
         });
 	});
 
+router.route('/gameById/:id')
+    .get((request,res)=>{
+        gameModel.findById(request.params.id,(err, game)=>{
+            if(err){
+                return res.send(err);
+            }
+            return res.send(game);
+        });
+    });
+
 module.exports = router;
