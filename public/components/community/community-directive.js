@@ -36,6 +36,10 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 		    		sockId:sockId
 		    	});
 		    }
+
+		    scope.$on('refreshPlayers',()=>{
+		    	getPlayers();
+		    })
         }
     }
 }

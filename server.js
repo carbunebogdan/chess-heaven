@@ -35,8 +35,13 @@ const server = app.listen(app.get('port'), function() {
 
 const io = require('socket.io')(server);
 
-var currentRoom=null;
-var statusAndsockId = (user, status, sockId) => {
+
+
+
+
+
+io.on('connection', (socket) => {
+	var statusAndsockId = (user, status, sockId) => {
     if (status == 0) {
         accModel.findOneAndUpdate({ 'username': user }, { $set: { 'status': status, 'sockId': null } }, { new: true }, (err, account) => {
             if (err) {
@@ -55,29 +60,48 @@ var statusAndsockId = (user, status, sockId) => {
         });
     };
 
-}
+	}
 
-var getGameByPlayerId = (id,socket)=>{
-	gameModel.find({$or: [ { p1_id: id }, { p2_id: id } ]},{_id:1,room:1},(err,game)=>{
-		if(err){
-			console.log(err);
-		}else{
-			socket.join(game[0].room);
-			currentRoom=game[0].room;
-			socket.broadcast.to(currentRoom).emit('newMessage', {
-            	source: {
-            		sender:'master',
-                	message:'The enemy has returned!'}
-        	});
-        	socket.emit('gameId',game[0]._id);
-		}
-	}).sort({date: -1}).limit(1);
-}
-
-
-
-io.on('connection', (socket) => {
+	var getGameByPlayerId = (id,socket)=>{
+		gameModel.find({$or: [ { p1_id: id }, { p2_id: id } ]},{_id:1,room:1},(err,game)=>{
+			if(err){
+				console.log(err);
+			}else{
+				socket.join(game[0].room);
+				currentRoom=game[0].room;
+				socket.broadcast.to(currentRoom).emit('newMessage', {
+	            	source: {
+	            		sender:'master',
+	                	message:'The enemy has returned!'}
+	        	});
+	        	socket.broadcast.to(currentRoom).emit('needData', 1);
+	        	socket.emit('gameId',game[0]._id);
+			}
+		}).sort({date: -1}).limit(1);
+	}
+	var currentRoom=null;
     console.log('The socket is on!');
+
+    // 
+    socket.on('endGame',(from)=>{
+    	socket.leave(currentRoom);
+    	socket.broadcast.emit('updateList', {
+                                source: {
+                                    user: from,
+                                    status: 1,
+                                    sockId: socket.id
+                                }
+                            });
+    })
+
+    socket.on('gameData',(from)=>{
+    	socket.broadcast.to(currentRoom).emit('gameData',from);
+    })
+
+    // send move to other player
+    socket.on('move',(from)=>{
+    	socket.broadcast.to(currentRoom).emit('move',from);
+    });
 
     // when I leave the game I must announce the other player
     socket.on('leftGame',(from)=>{
@@ -135,13 +159,15 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', (from) => {
     	var sockId=socket.id;
+    	console.log(currentRoom);
+    	io.in(currentRoom).emit('player left', 1);
         accModel.find({ 'sockId': sockId }, { status: 1 }, (err, account) => {
             if (err) {
                 console.log(err);
             }
             if (account[0]) {
                 if (account[0].status == 2) {
-                    console.log('bitch was in a game');
+                    
                 } else {
                     accModel.findOneAndUpdate({ 'sockId': sockId }, { $set: { 'status': 0, 'sockId': null } }, { new: true }, (error, acc) => {
                         if (error) {
@@ -251,7 +277,6 @@ io.on('connection', (socket) => {
         } else {
             from.sockId = socket.id;
         }
-
 
         statusAndsockId(from.user, from.status, from.sockId);
         socket.broadcast.emit('updateList', {

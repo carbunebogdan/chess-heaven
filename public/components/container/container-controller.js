@@ -56,9 +56,7 @@ class containerController{
             })
         }
 
-        socketService.socketOn('gameId',(from)=>{
-            this.currGameId=from;
-        })
+        
 
 
         // Watch for socket incoming data

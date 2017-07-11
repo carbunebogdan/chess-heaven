@@ -90,6 +90,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                         fullscreen: scope.customFullscreen
                     });
                 }else{
+                    scope.contCtrl.enemy = from.source.p2;
                     socketService.socketEmit('joinGame',{
                         room:from.source.p2+'vs'+from.source.p1,
                         game_Id:from.source.game_Id
@@ -136,6 +137,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
             scope.acceptChallenge = () => {
                 document.title = 'Chess Heaven';
                 challengeAction = true;
+                scope.contCtrl.enemy=scope.challengerName;
                 $mdDialog.hide();
                 socketService.socketEmit('challengeResponse', {
                     p2: $rootScope.account.username,

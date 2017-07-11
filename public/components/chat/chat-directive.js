@@ -60,6 +60,7 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
                     scrollChat();
                     
                 }
+                
 
             });
         }
