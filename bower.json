@@ -1,21 +1,21 @@
 {
   "name": "chess-heaven",
-  "version": "1.0.0",
+  "description": "fe dependencies",
+  "authors": [
+    "Bogdan"
+  ],
   "dependencies": {
-    "angular": "1.6.3",
-    "angular-ui-router": "latest",
-    "angular-ui-bootstrap": "latest",
-    "angular-animate": "latest",
-    "angular-touch": "latest",
-    "angular-material": "latest",
-    "angular-local-storage": "latest",
-    "angular-messages": "latest",
-    "bootstrap": "3.3.7",
-    "socket.io-client": "latest",
-    "chess.js": "latest",
-    "chessboard.js": "latest"
-  },
-  "resolutions": {
-    "angular": "1.6.3"
+    "angular-animate": "^1.4.8",
+    "angular-aria": "^1.4.8",
+    "angular-messages": "^1.4.8",
+    "angular-touch": "*",
+    "angular-ui-bootstrap": "*",
+    "chess.js": "*",
+    "angular-local-storage": "*",
+    "jquery": "1.9.1 - 3",
+    "socket.io-client": "*",
+    "angular-material": "*",
+    "angular-ui-router": "*",
+    "bootstrap": "3.3.7"
   }
 }

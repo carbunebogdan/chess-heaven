@@ -94,6 +94,10 @@ io.on('connection', (socket) => {
                             });
     })
 
+    socket.on('error',()=>{
+        console.log('socket error');
+    })
+
     socket.on('gameData',(from)=>{
     	socket.broadcast.to(currentRoom).emit('gameData',from);
     })
@@ -159,7 +163,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', (from) => {
     	var sockId=socket.id;
-    	console.log(currentRoom);
+        currentRoom=socket.room;
     	io.in(currentRoom).emit('player left', 1);
         accModel.find({ 'sockId': sockId }, { status: 1 }, (err, account) => {
             if (err) {
@@ -173,13 +177,16 @@ io.on('connection', (socket) => {
                         if (error) {
                             console.log(error);
                         } else {
-                            socket.broadcast.emit('updateList', {
+                            if(acc){
+                               socket.broadcast.emit('updateList', {
                                 source: {
                                     user: acc.username,
                                     status: 0,
                                     sockId: null
                                 }
-                            });
+                                }); 
+                            }
+                            
                         }
 
                     });

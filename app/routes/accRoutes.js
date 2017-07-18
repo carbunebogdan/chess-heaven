@@ -1,26 +1,46 @@
 const express = require('express');
 const router = express.Router();
 const accModel = require('../models/accModel');
-var nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
+const cryptAlgorithm = 'aes-256-ctr';
+const key = 'd6F3Efeq';
+
+var encrypt=(password)=>{
+    var cipher = crypto.createCipher(cryptAlgorithm,key)
+    var crypted = cipher.update(password,'utf8','hex')
+    crypted += cipher.final('hex');
+    return crypted;
+};
+
+var decrypt=(crypted)=>{
+    var decipher = crypto.createDecipher(cryptAlgorithm,key)
+    var dec = decipher.update(crypted,'hex','utf8')
+    dec += decipher.final('utf8');
+    return dec;
+}
+
+console.log(decrypt('0786d18332797d71264cea5ca5c31b96b24688fad3e8d0'));
 
 router.route('/acc')
 	.get((request, res) => {
-        
-            accModel.find({}, {}, (err, accounts) => {
+            accModel.find({}, {username:1,type:1,join_date:1}, (err, accounts) => {
             if (err) {
                 return res.send(err);
             }
             res.json(accounts);}).limit(5).sort( { join_date: -1 } );
+
+            
         
 		
 	})
     .post((request, res) => {
-    	const account = new accModel(request.body);
+    	var account = new accModel(request.body);
+        account.password=encrypt(account.password);
         var code=Math.floor(Math.random()*(9999-1000+1)+1000).toString();
-        var canInsert=true;;
-        accModel.count({'username': request.body.username},(err,count)=>{
+        var canInsert=true;
+            accModel.count({'username': request.body.username},(err,count)=>{
             if(!count){
-                console.log('good user');
                 account.save((err, accounts) => {
                 if (err) {
                     console.log(err);
@@ -28,13 +48,13 @@ router.route('/acc')
                 var transporter = nodemailer.createTransport({
                   service: 'gmail',
                   auth: {
-                    user: 'chessheaven17@gmail.com',
-                    pass: 'amparola'
+                    user: decrypt('0786d18332797d71264cea5ca5c31b96b24688fad3e8d0'),
+                    pass: decrypt('0583c491337e7471')
                   }
                 });
 
                 var mailOptions = {
-                  from: 'chessheaven17@gmail.com',
+                  from: decrypt('0786d18332797d71264cea5ca5c31b96b24688fad3e8d0'),
                   to: request.body.email,
                   subject: 'Chess Heaven Registration Code',
                   text: 'Hello there ! Here is your code: '+ code
@@ -50,16 +70,19 @@ router.route('/acc')
                 
             });
             }else{
-                console.log('bad user');
                 return res.send("bad");
             }
         });
+
+        
         
         
     })
     .put((request, res) => {
-        accModel.findOneAndUpdate(
-            { 'username': request.body.username, 'password': request.body.password },
+        var password=encrypt(request.body.password);
+        if(request.body.status==1){
+            accModel.findOneAndUpdate(
+            { 'username': request.body.username, 'password': password },
             { $set: { 'status':request.body.status } },
             { returnNewDocument:true }, (err, account) => {
             if (err) {
@@ -68,7 +91,21 @@ router.route('/acc')
             return res.send(account);
                     
             
-        });
+            });
+        }else{
+            accModel.findOneAndUpdate(
+            { 'username': request.body.username},
+            { $set: { 'status':request.body.status } },
+            { returnNewDocument:true }, (err, account) => {
+            if (err) {
+                return res.send(err);
+            }
+            return res.send(account);
+                    
+            
+            });
+        }
+        
     });
 
 router.route('/acc/:user')
@@ -98,13 +135,13 @@ router.route('/activate')
         var transporter = nodemailer.createTransport({
                   service: 'gmail',
                   auth: {
-                    user: 'chessheaven17@gmail.com',
-                    pass: 'amparola'
+                    user: decrypt('0786d18332797d71264cea5ca5c31b96b24688fad3e8d0'),
+                    pass: decrypt('0583c491337e7471')
                   }
                 });
 
         var mailOptions = {
-                  from: 'chessheaven17@gmail.com',
+                  from: decrypt('0786d18332797d71264cea5ca5c31b96b24688fad3e8d0'),
                   to: request.body.email,
                   subject: 'Chess Heaven Registration Code',
                   text: 'Hello '+ request.body.username +'! Here is your resent code: '+ code

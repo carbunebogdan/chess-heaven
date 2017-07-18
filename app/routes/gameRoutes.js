@@ -31,6 +31,7 @@ router.route('/game')
             gameModel.find({ 'comp_id': request.body.comp_id, 'round': request.body.round, 'status': 0}, {}, (err, games) => {
                 if (games.length === 0) {
                     compModel.findOne({ _id: request.body.comp_id}, {}, (err, competition) => {
+                    if(competition){
                         if (competition.current_round < competition.rounds) {
                             competition.current_round = competition.current_round + 1;
                         } else if (competition.current_round === competition.rounds) {
@@ -39,16 +40,19 @@ router.route('/game')
                         compModel.findOneAndUpdate({ _id: competition._id }, { $set: competition }, (err, comps) => {
                             console.log('We have update the competition');
                         });
+                    }
                     });
                 }
             });
-
-            return gameModel.findOne({ '_id': games._id}, {}, (err, games) => {
+            if(games){
+                return gameModel.findOne({ '_id': games._id}, {}, (err, games) => {
                 if (err) {
                     return res.send(err);
                 }
                 return res.send(games);
             });
+            }
+            
         });
     });
 

@@ -2,17 +2,20 @@
     <div class="panel-heading">
     <md-button class="md-warn md-raised" ng-click="leaveGameAsk()">Leave Game</md-button>
     <hr>
-    <h4>Game</h4></div>
+    <h5 ng-hide="playerLeft">{{status}}</h5>
+    <h5 ng-if="playerLeft" style="color:red">{{leftTime}} till the other player will be disqualified...</h5></div>
     <div class="panel-body" style="padding: 1rem;" >
         <div layout="row" layout-sm="column" layout-xs="column" layout-md="column" style="width: 100%">
-            <h5 ng-hide="playerLeft">{{status}}</h5>
-            <h5 ng-if="playerLeft" style="color:red">{{leftTime}} till the other player will be disqualified...</h5>
-            <div id="board" style="width: 60%;margin:1rem"  >
-                <div ng-if="gameLoad">
+            <hr>
+            <div style="width: 60%;margin:1rem">
+                <div id="board"   >
+                    <div ng-if="gameLoad">
                     <h4>Game is loading...</h4>
                     <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-                </div>
+                    </div>
+                </div> 
             </div>
+            
             <div flex></div>
             <div  style="margin:1rem; width: 40%">
                <chat-directive></chat-directive> 
@@ -20,6 +23,6 @@
             
         </div>   
 
-        <md-button class="md-primary md-raised" ng-click="joinRoom()">Join Room</md-button>  
+
     </div>
 </div>

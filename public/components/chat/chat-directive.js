@@ -5,7 +5,7 @@ const chatDirective = ($rootScope, socketService, $window, accService,localStora
         link: (scope) => {
             scope.messages=[{
                 sender:'master',
-                message:'Competitia a inceput!'
+                message:'The game is on!'
             }]
             
             scope.account = $rootScope.account;

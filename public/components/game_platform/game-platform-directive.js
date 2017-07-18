@@ -8,6 +8,9 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
             var currGame = null;
             var board = null;
             var gameIsSet = false;
+            var dropPiece = new Audio('../../sounds/dropPiece.mp3');
+            var onMovePiece = new Audio('../../sounds/movePiece.mp3');
+            var check = new Audio('../../sounds/check.mp3');
 
             // do not pick up pieces if the game is over
             // only pick up pieces for certain round
@@ -27,20 +30,24 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                 var move = game.move({
                     from: source,
                     to: target,
-                    promotion: 'q' // NOTE: always promote to a queen for example simplicity
+                    promotion: 'q' // promote to a queen
                 });
+
 
                 // illegal move
                 if (move === null) return 'snapback';
                 updateStatus();
+                dropPiece.play();
                 socketService.socketEmit('move', { source: source, target: target });
             };
 
             // update the board position after the piece snap
-            // for castling, en passant, pawn promotion
+            // for castling, pawn promotion
             var onSnapEnd = function() {
                 board.position(game.fen(), true);
             };
+
+
 
             var updateStatus = function() {
 
@@ -52,7 +59,7 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
 
                 // checkmate?
                 if (game.in_checkmate() === true) {
-
+                    check.play();
                     scope.time = 10;
                     scope.status = 'Game over, ' + moveColor + ' is in checkmate. Exiting in ' + scope.time + '...';
                     var loseColor = null;
@@ -199,6 +206,7 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                     // check?
                     if (game.in_check() === true) {
                         scope.status += ', ' + moveColor + ' is in check';
+                        check.play();
                     }
                 }
                 if (!scope.$$phase)
@@ -289,7 +297,11 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                 });
             }
 
-
+            $(window).resize(()=>{
+                if(board){
+                    board.resize();
+                }
+            });
 
             scope.gameLoad = true;
             socketService.socketOn('gameId', (from) => {
@@ -312,7 +324,7 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
 
             socketService.socketOn('player left', (from) => {
                 scope.playerLeft = true;
-                countDownLeft(5);
+                countDownLeft(30);
                 scope.$apply;
 
             })
@@ -453,8 +465,9 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                 var move = game.move({
                     from: from.source,
                     to: from.target,
-                    promotion: 'q' // NOTE: always promote to a queen for example simplicity
+                    promotion: 'q' // promote to a queen
                 });
+                onMovePiece.play();
                 board.draggable = true;
                 updateStatus();
             })

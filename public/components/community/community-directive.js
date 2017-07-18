@@ -14,9 +14,10 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 		    getPlayers();
 
 		    socketService.socketOn('updateList',(from)=>{
-		    	
+		    	var newPlayer=true;
 		    	for(i=0;i<scope.players.length;i++){
 		    		if(scope.players[i].username==from.source.user){
+		    			newPlayer=false;
 		    			scope.players[i].status=from.source.status;
 		    			if(from.source.status==1 || from.source.status==2){
 		    				 scope.players[i].sockId=from.source.sockId;
@@ -25,7 +26,12 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 		    			}
 		    		}
 		    	}
-		    	scope.$apply();
+		    	if(newPlayer){
+		    		getPlayers();
+		    	}else{
+		    		scope.$apply();
+		    	}
+		    	
 		    })
 
 
