@@ -2466,6 +2466,7 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                 $mdDialog.hide();
             };
 
+            // leave game, end game and place the result, update player status and emit 'leftGame' to announce the other player
             scope.leaveGame = () => {
                 var result = null;
                 if ($rootScope.account._id == currGame.p1_id) {

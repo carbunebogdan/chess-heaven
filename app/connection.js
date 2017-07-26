@@ -1,7 +1,8 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const db = mongoose.connect('mongodb://bogdan:parola@ds113841.mlab.com:13841/chess-heaven'); 
+require('dotenv').config();
+const db = mongoose.connect(process.env.DB); 
 
 // Attach lister to connected event
 mongoose.connection.once('connected', () => {

@@ -2,27 +2,27 @@
   "name": "chess-heaven",
   "description": "chess-heaven",
   "version": "1.0.0",
-  "engines":{
-    "node":"6.10.2"
+  "engines": {
+    "node": "6.10.2"
   },
-  "scripts":{
-    
+  "scripts": {
     "start": "node server.js",
     "postinstall": "bower install"
   },
-  "main":"server.js",
+  "main": "server.js",
   "dependencies": {
-    "express": "4.14.1",
-    "browserify-istanbul": "2.0.0",
     "babelify": "7.3.0",
-    "mongoose": "4.8.6",
     "body-parser": "1.17.1",
+    "bower": "latest",
+    "browserify-istanbul": "2.0.0",
+    "crypto": "latest",
+    "dotenv": "^4.0.0",
+    "express": "4.14.1",
+    "mongoose": "4.8.6",
+    "nodemailer": "4.0.1",
     "path": "0.12.7",
     "serve-static": "1.12.1",
-    "socket.io": "latest",
-    "bower":"latest",
-    "nodemailer":"4.0.1",
-    "crypto":"latest"
+    "socket.io": "latest"
   },
   "devDependencies": {
     "grunt": "1.0.1",
