@@ -5,19 +5,30 @@ html, body {
   background: url("../images/bckTexture.jpg") fixed;
 }
 
-/* line 9, main.scss */
+/* line 8, main.scss */
+#compTile {
+  transition: all .2s ease-in-out;
+}
+
+/* line 12, main.scss */
+#compTile:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+/* line 17, main.scss */
 .activeBox {
   height: 40rem;
 }
 
-/* line 13, main.scss */
+/* line 21, main.scss */
 .chatContainer {
   height: 40rem;
   background-color: lightgrey;
   overflow-y: scroll;
 }
 
-/* line 19, main.scss */
+/* line 27, main.scss */
 .chatMessage {
   width: 50%;
   height: auto;
@@ -25,29 +36,29 @@ html, body {
   padding: 1rem;
 }
 
-/* line 26, main.scss */
+/* line 34, main.scss */
 .chatMessage p {
   font-size: 12px;
 }
 
-/* line 30, main.scss */
+/* line 38, main.scss */
 #myMsg {
   float: right;
 }
 
-/* line 34, main.scss */
+/* line 42, main.scss */
 #anotherMsg {
   float: left;
 }
 
 /* clearfix */
-/* line 39, main.scss */
+/* line 47, main.scss */
 .clearfix-7da63 {
   clear: both;
 }
 
 /* board */
-/* line 44, main.scss */
+/* line 52, main.scss */
 .board-b72b1 {
   border: 2px solid #404040;
   -webkit-box-sizing: content-box;
@@ -56,7 +67,7 @@ html, body {
 }
 
 /* square */
-/* line 52, main.scss */
+/* line 60, main.scss */
 .square-55d63 {
   float: left;
   position: relative;
@@ -70,21 +81,21 @@ html, body {
 }
 
 /* white square */
-/* line 66, main.scss */
+/* line 74, main.scss */
 .white-1e1d7 {
   background-color: #f0d9b5;
   color: #b58863;
 }
 
 /* black square */
-/* line 72, main.scss */
+/* line 80, main.scss */
 .black-3c85d {
   background-color: #b58863;
   color: #f0d9b5;
 }
 
 /* highlighted square */
-/* line 78, main.scss */
+/* line 86, main.scss */
 .highlight1-32417, .highlight2-9c5d2 {
   -webkit-box-shadow: inset 0 0 3px 3px yellow;
   -moz-box-shadow: inset 0 0 3px 3px yellow;
@@ -92,7 +103,7 @@ html, body {
 }
 
 /* notation */
-/* line 85, main.scss */
+/* line 93, main.scss */
 .notation-322f9 {
   cursor: default;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -100,57 +111,57 @@ html, body {
   position: absolute;
 }
 
-/* line 92, main.scss */
+/* line 100, main.scss */
 .alpha-d2270 {
   bottom: 1px;
   right: 3px;
 }
 
-/* line 97, main.scss */
+/* line 105, main.scss */
 .numeric-fc462 {
   top: 2px;
   left: 2px;
 }
 
-/* line 102, main.scss */
+/* line 110, main.scss */
 .piece-417db {
   cursor: pointer;
 }
 
-/* line 109, main.scss */
+/* line 117, main.scss */
 .bar {
   background-color: #c1c1c1;
 }
 
-/* line 114, main.scss */
+/* line 122, main.scss */
 .breadcrumb .active a {
   color: #000;
 }
 
-/* line 119, main.scss */
+/* line 127, main.scss */
 .competition {
   background: #fff;
   color: #000;
 }
 
 /** GAME COMPETITION STYLES **/
-/* line 126, main.scss */
+/* line 134, main.scss */
 .game .game__player-name {
   padding-left: 1rem;
 }
-/* line 130, main.scss */
+/* line 138, main.scss */
 .game .game__player-icon {
   display: inline-block;
   vertical-align: middle;
 }
 
 /** RAIN component styles below **/
-/* line 138, main.scss */
+/* line 146, main.scss */
 .rain-emoji-block {
   position: relative;
   overflow: hidden;
 }
-/* line 142, main.scss */
+/* line 150, main.scss */
 .rain-emoji-block .rain-emoji-block__background {
   width: 100%;
   height: 100%;
@@ -159,7 +170,7 @@ html, body {
   left: 0;
   z-index: 999;
 }
-/* line 150, main.scss */
+/* line 158, main.scss */
 .rain-emoji-block .rain-emoji-block__background span {
   top: -30%;
   position: absolute;

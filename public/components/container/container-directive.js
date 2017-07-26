@@ -1,4 +1,4 @@
-const containerDirective = ($rootScope,accService,localStorageService,betService,socketService) => {
+const containerDirective = ($window,$rootScope,accService,localStorageService,betService,socketService) => {
     return {
         templateUrl: 'components/container/container.html',
         restrict: 'E',
@@ -18,6 +18,10 @@ const containerDirective = ($rootScope,accService,localStorageService,betService
         		scope.contCtrl.viewValue = view;
         	}
 
+            scope.selectComp=(id)=>{
+                $window.location.href='/#!/competition/'+id;
+            }
+
             scope.updateMoney=()=>{
                 scope.userMoney.user=$rootScope.account._id;
                 accService.updateMoney(scope.userMoney).then((rsp)=>{
@@ -28,6 +32,7 @@ const containerDirective = ($rootScope,accService,localStorageService,betService
                 })
                 
             }
+
 
             scope.getMyBets=()=>{
                 betService.getBetsForUser($rootScope.account._id).then((rsp)=>{
@@ -43,7 +48,7 @@ const containerDirective = ($rootScope,accService,localStorageService,betService
     };
 };
 
-containerDirective.$inject = ['$rootScope','accService','localStorageService','betService','socketService'];
+containerDirective.$inject = ['$window','$rootScope','accService','localStorageService','betService','socketService'];
 
 angular.module('berger').directive('containerDirective', containerDirective);
 

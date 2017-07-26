@@ -7,12 +7,11 @@
         <li role="presentation" ng-class="{active: contCtrl.viewValue === 'manager'}">
             <a href="/#!/manager" ng-click="changeView('manager')">Manager</a>
         </li>
-        <li role="presentation" ng-repeat="comp in contCtrl.competitions" ng-class="{active: contCtrl.currentCompId === comp._id}">
-            <a href="/#!/competition/{{comp._id}}" ng-click="changeView('competition')">{{comp.name}}</a>
+        <li role="presentation" ng-class="{active: contCtrl.viewValue === 'competitions'}">
+            <a href="/#!/manager" ng-click="changeView('competitions')">Competitions</a>
         </li>
     </ul>
     <!-- end of <Main Menu> -->
-
     <!-- Sub Menu - Player/Competition -->
     <ol class="breadcrumb" ng-show="contCtrl.viewValue === 'manager'">
         <li>
@@ -23,7 +22,6 @@
         </li>
     </ol>
     <!-- end of <Sub Menu> -->
-
     <!-- Add and List players -->
     <div class="row" ng-show="contCtrl.subViewValue === 'player' && contCtrl.viewValue === 'manager'">
         <div class="col-lg-12">
@@ -33,7 +31,6 @@
             <table-component table-headers="contCtrl.userHeaders" table-keys="contCtrl.userKeys" table-body="contCtrl.players" table-title="Players"></table-component>
         </div>
     </div>
-
     <!-- Add and List competitions -->
     <div class="row" ng-show="contCtrl.subViewValue === 'competition' && contCtrl.viewValue === 'manager'">
         <div class="col-lg-12">
@@ -43,15 +40,24 @@
             <table-component table-headers="contCtrl.competitionHeaders" table-keys="contCtrl.competitionKeys" table-body="contCtrl.competitions" table-title="Competitions"></table-component>
         </div>
     </div>
-
-    <!-- This will show when we click on a competition -->
-    <div class="row" ng-if="contCtrl.viewValue === 'competition'">
+    <!-- Listing competitions -->
+    <div class="row" ng-if="contCtrl.viewValue === 'competitions'">
         <div class="col-lg-12">
-            <competition-directive></competition-directive>
+            <div ng-if="contCtrl.currentCompId">
+                <competition-directive></competition-directive>
+            </div>
+            <md-content layout-padding>
+                <md-grid-list md-cols-gt-md="12" md-cols="3" md-cols-md="8" md-row-height-gt-md="1:1" md-row-height="4:3" md-gutter-gt-md="16px" md-gutter-md="8px" md-gutter="4px">
+                    <md-grid-tile ng-click="selectComp(comp._id)" id="compTile" ng-repeat="comp in contCtrl.competitions| orderBy: '-date'" ng-style="{
+                        'background': comp.color
+                      }" md-colspan-gt-sm="{{comp.colspan}}" md-rowspan-gt-sm="{{comp.rowspan}}">
+                        <h4 style="text-align: center">{{comp.name}}</h4>
+                    </md-grid-tile>
+                </md-grid-list>
+            </md-content>
         </div>
     </div>
 </div>
-
 <!-- Gambler -->
 <div class="container" ng-if="account.type==1" layout="column">
     <!-- Account Nav -->
@@ -61,12 +67,11 @@
         <li role="presentation" ng-class="{active: contCtrl.viewValue === 'manager'}">
             <a href="/#!/manager" ng-click="changeView('manager')">Manage Account</a>
         </li>
-        <li role="presentation" ng-repeat="comp in contCtrl.competitions" ng-class="{active: contCtrl.currentCompId === comp._id}">
-            <a href="/#!/competition/{{comp._id}}" ng-click="changeView('competition')">{{comp.name}}</a>
+        <li role="presentation" ng-class="{active: contCtrl.viewValue === 'competitions'}">
+            <a href="/#!/manager" ng-click="changeView('competitions')">Competitions</a>
         </li>
     </ul>
     <!-- end of <Main Menu> -->
-
     <br>
     <div ng-show="contCtrl.viewValue === 'manager'">
         <!-- Sub Menu - Player/Competition -->
@@ -79,7 +84,6 @@
             </li>
         </ol>
         <!-- end of <Sub Menu> -->
-
         <!-- My account -->
         <md-content ng-if="contCtrl.subViewValue=='myacc'" class="md-whiteframe-15dp" style="padding: 2rem">
             <h3>My account data</h3>
@@ -106,7 +110,6 @@
                 <md-button class="md-primary md-raised" type="submit">Add money</md-button>
             </form>
         </md-content>
-
         <!-- Current Bids -->
         <md-content ng-if="contCtrl.subViewValue=='mybets'" class="md-whiteframe-15dp" style="padding: 2rem;">
             <h3>My bids</h3>
@@ -142,33 +145,41 @@
             </div>
         </md-content>
     </div>
-
-    <!-- This will show when we click on a competition -->
-    <div class="row" ng-if="contCtrl.viewValue === 'competition'">
+    <!-- Listing competitions -->
+    <div class="row" ng-if="contCtrl.viewValue === 'competitions'">
         <div class="col-lg-12">
-            <competition-directive></competition-directive>
+            <div ng-if="contCtrl.currentCompId">
+                <competition-directive></competition-directive>
+            </div>
+            <md-content layout-padding>
+                <md-grid-list md-cols-gt-md="12" md-cols="3" md-cols-md="8" md-row-height-gt-md="1:1" md-row-height="4:3" md-gutter-gt-md="16px" md-gutter-md="8px" md-gutter="4px">
+                    <md-grid-tile ng-click="selectComp(comp._id)" id="compTile" ng-repeat="comp in contCtrl.competitions| orderBy: '-date'" ng-style="{
+                            'background': comp.color
+                          }" md-colspan-gt-sm="{{comp.colspan}}" md-rowspan-gt-sm="{{comp.rowspan}}">
+                        <h4 style="text-align: center">{{comp.name}}</h4>
+                    </md-grid-tile>
+                </md-grid-list>
+            </md-content>
         </div>
     </div>
 </div>
-
 <!-- Player -->
 <div class="container" ng-if="account.type==2" layout="column">
     <!-- Account Nav -->
     <myacc-navbar></myacc-navbar>
     <!-- Main Menu -->
     <ul class="nav nav-tabs nav-justified bar">
-            <li role="presentation" ng-hide="contCtrl.ingame" ng-class="{active: contCtrl.viewValue === 'manager'}">
-                <a href="/#!/manager" ng-click="changeView('manager')">Manage Account</a>
-            </li>
-            <li role="presentation" ng-hide="contCtrl.ingame" ng-class="{active: contCtrl.viewValue === 'players'}">
-                <a href="" ng-click="changeView('players')">Players</a>
-            </li>
-        <li role="presentation"  ng-class="{active: contCtrl.viewValue === 'currGame'}" ng-if="contCtrl.ingame">
+        <li role="presentation" ng-hide="contCtrl.ingame" ng-class="{active: contCtrl.viewValue === 'manager'}">
+            <a href="/#!/manager" ng-click="changeView('manager')">Manage Account</a>
+        </li>
+        <li role="presentation" ng-hide="contCtrl.ingame" ng-class="{active: contCtrl.viewValue === 'players'}">
+            <a href="" ng-click="changeView('players')">Players</a>
+        </li>
+        <li role="presentation" ng-class="{active: contCtrl.viewValue === 'currGame'}" ng-if="contCtrl.ingame">
             <a href="" ng-click="changeView('game')">Game</a>
         </li>
     </ul>
     <!-- end of <Main Menu> -->
-
     <br>
     <div ng-show="contCtrl.viewValue === 'manager'">
         <!-- Sub Menu - Player/Competition -->
@@ -181,32 +192,25 @@
             </li>
         </ol>
         <!-- end of <Sub Menu> -->
-
         <!-- My account -->
         <md-content ng-if="contCtrl.subViewValue=='myacc'" class="md-whiteframe-15dp" style="padding: 2rem">
             <h3>Statistics</h3>
-            
         </md-content>
-
         <!-- Current Bids -->
         <md-content ng-if="contCtrl.subViewValue=='mygames'" class="md-whiteframe-15dp" style="padding: 2rem;">
             <h3>My Games</h3>
             <hr>
             <h4>Finished</h4>
             <hr>
-            
             <h4>Active</h4>
             <hr>
-            
         </md-content>
     </div>
-
     <div ng-show="contCtrl.viewValue === 'players'">
         <md-content class="md-whiteframe-15dp" style="padding: 2rem">
             <community-directive></community-directive>
         </md-content>
     </div>
-
     <!-- This will show when we click on a competition -->
     <div class="row" ng-if="contCtrl.viewValue === 'game'">
         <div class="col-lg-12">

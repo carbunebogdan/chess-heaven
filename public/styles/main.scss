@@ -5,6 +5,14 @@ html,body {
   background: url("../images/bckTexture.jpg") fixed; 
 }
 
+#compTile{
+  transition: all .2s ease-in-out;
+}
+
+#compTile:hover{
+  transform: scale(1.1);
+  cursor: pointer;
+}
 
 .activeBox{
   height:40rem;

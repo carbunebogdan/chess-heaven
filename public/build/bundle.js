@@ -1890,6 +1890,29 @@ class containerController {
         this.userKeys = ['name', 'email', 'club', 'date'];
 
         this.competitions = competitionRsp.data;
+        for (var i = 0; i < this.competitions.length; i++) {
+            var r = Math.random();
+            if (this.competitions[i].status == 0) {
+                this.competitions[i].color = '#64ef82';
+            } else {
+                this.competitions[i].color = '#ff706b';
+            }
+            if (r < 0.8) {
+                this.competitions[i].colspan = 2;
+            } else if (r < 0.9) {
+                this.competitions[i].colspan = 3;
+            } else {
+                this.competitions[i].colspan = 4;
+            }
+            r = Math.random();
+            if (r < 0.8) {
+                this.competitions[i].rowspan = 2;
+            } else if (r < 0.9) {
+                this.competitions[i].rowspan = 3;
+            } else {
+                this.competitions[i].rowspan = 4;
+            }
+        }
         this.competitionHeaders = ['Name', 'Current Round', 'Total Rounds', 'Status', 'Date'];
         this.competitionKeys = ['name', 'current_round', 'rounds', 'status', 'date'];
 
@@ -1906,6 +1929,7 @@ class containerController {
 
         if ($state.params && $state.params.compId) {
             this.currentCompId = $state.params.compId;
+            this.viewValue = 'competitions';
         }
 
         // Register socket
@@ -1944,7 +1968,7 @@ containerController.$inject = ['$state', 'playerRsp', 'competitionRsp', 'gamesRs
 angular.module('berger').controller('containerController', containerController);
 
 },{}],9:[function(require,module,exports){
-const containerDirective = ($rootScope, accService, localStorageService, betService, socketService) => {
+const containerDirective = ($window, $rootScope, accService, localStorageService, betService, socketService) => {
     return {
         templateUrl: 'components/container/container.html',
         restrict: 'E',
@@ -1962,6 +1986,10 @@ const containerDirective = ($rootScope, accService, localStorageService, betServ
             // Changes the view betweeen panels
             scope.changeView = view => {
                 scope.contCtrl.viewValue = view;
+            };
+
+            scope.selectComp = id => {
+                $window.location.href = '/#!/competition/' + id;
             };
 
             scope.updateMoney = () => {
@@ -1987,7 +2015,7 @@ const containerDirective = ($rootScope, accService, localStorageService, betServ
     };
 };
 
-containerDirective.$inject = ['$rootScope', 'accService', 'localStorageService', 'betService', 'socketService'];
+containerDirective.$inject = ['$window', '$rootScope', 'accService', 'localStorageService', 'betService', 'socketService'];
 
 angular.module('berger').directive('containerDirective', containerDirective);
 
