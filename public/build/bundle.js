@@ -1819,10 +1819,21 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 				link: scope => {
 						var getPlayers = () => {
 								scope.playerLoading = true;
-								accService.getPlayers({ username: $rootScope.account.username }).then(rsp => {
+								accService.getPlayers().then(rsp => {
 										scope.players = rsp.data;
+										sortByScore();
 										scope.playerLoading = false;
 								});
+						};
+						var sortByScore = () => {
+								var aux = null;
+								for (i = 0; i < scope.players.length - 1; i++) for (j = i; j < scope.players.length; j++) {
+										if (scope.players[i].wins - scope.players[i].loses < scope.players[j].wins - scope.players[j].loses) {
+												aux = scope.players[i];
+												scope.players[i] = scope.players[j];
+												scope.players[j] = aux;
+										}
+								}
 						};
 						getPlayers();
 
@@ -1832,11 +1843,17 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 										if (scope.players[i].username == from.source.user) {
 												newPlayer = false;
 												scope.players[i].status = from.source.status;
+												scope.players[i].wins = from.source.wins;
+												scope.players[i].loses = from.source.loses;
 												if (from.source.status == 1 || from.source.status == 2) {
 														scope.players[i].sockId = from.source.sockId;
 												} else {
 														scope.players[i].sockId = null;
 												}
+										}
+										if (scope.players[i].username == $rootScope.account.username) {
+												scope.players[i].wins = $rootScope.account.wins;
+												scope.players[i].loses = $rootScope.account.loses;
 										}
 								}
 								if (newPlayer) {
@@ -1844,6 +1861,7 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 								} else {
 										scope.$apply();
 								}
+								sortByScore();
 						});
 
 						scope.challengePlayer = sockId => {
@@ -1856,6 +1874,12 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 
 						scope.$on('refreshPlayers', () => {
 								getPlayers();
+								for (i = 0; i < scope.players.length; i++) {
+										if (scope.players[i].username == $rootScope.account.username) {
+												scope.players[i].wins = $rootScope.account.wins;
+												scope.players[i].loses = $rootScope.account.loses;
+										}
+								}
 						});
 				}
 		};
@@ -1883,6 +1907,15 @@ class containerController {
         if (!$rootScope.account) $rootScope.account = localStorageService.get('account');
 
         if (!$rootScope.account) $location.path('/login');
+
+        if ($rootScope.account.type == 2) {
+            accService.getAccData($rootScope.account.username).then(rsp => {
+                if (rsp.data) {
+                    $rootScope.account.wins = rsp.data.wins;
+                    $rootScope.account.loses = rsp.data.loses;
+                }
+            });
+        }
 
         // Shared properties throughout the application
         this.players = playerRsp.data;
@@ -1946,9 +1979,9 @@ class containerController {
                     });
                     this.ingame = true;
                     this.viewValue = 'game';
-                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 2 });
+                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 2, wins: $rootScope.account.wins, loses: $rootScope.account.loses });
                 } else {
-                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 1 });
+                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 1, wins: $rootScope.account.wins, loses: $rootScope.account.loses });
                 }
             });
         }
@@ -2190,6 +2223,13 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                     return false;
                 }
             };
+            var reinit = () => {
+                var myColor = null;
+                var game = new Chess();
+                var currGame = null;
+                var board = null;
+                setUpGame();
+            };
             var onDrop = function (source, target) {
 
                 // see if the move is legal
@@ -2239,7 +2279,15 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                                     id: $rootScope.account._id,
                                     status: 1
                                 }).then(rsp => {
-                                    socketService.socketEmit('endGame', $rootScope.account.username);
+                                    accService.getAccData($rootScope.account.username).then(rsp => {
+                                        socketService.socketEmit('endGame', {
+                                            user: $rootScope.account.username,
+                                            wins: rsp.data.wins,
+                                            loses: rsp.data.loses
+                                        });
+                                        $rootScope.account.wins = rsp.data.wins;
+                                        $rootScope.account.loses = rsp.data.loses;
+                                    });
                                     $mdDialog.show({
                                         scope: scope.$new(),
                                         templateUrl: 'components/end_game_modal/responseLost.html',
@@ -2257,7 +2305,15 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                                     scope.contCtrl.ingame = false;
                                     scope.contCtrl.viewValue = 'players';
 
-                                    socketService.socketEmit('endGame', $rootScope.account.username);
+                                    accService.getAccData($rootScope.account.username).then(rsp => {
+                                        socketService.socketEmit('endGame', {
+                                            user: $rootScope.account.username,
+                                            wins: rsp.data.wins,
+                                            loses: rsp.data.loses
+                                        });
+                                        $rootScope.account.wins = rsp.data.wins;
+                                        $rootScope.account.loses = rsp.data.loses;
+                                    });
 
                                     $mdDialog.show({
                                         scope: scope.$new(),
@@ -2304,7 +2360,11 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                                         id: $rootScope.account._id,
                                         status: 1
                                     }).then(rsp => {
-                                        socketService.socketEmit('endGame', $rootScope.account.username);
+                                        socketService.socketEmit('endGame', {
+                                            user: $rootScope.account.username,
+                                            wins: $rootScope.account.wins,
+                                            loses: $rootScope.account.loses
+                                        });
                                         $mdDialog.show({
                                             scope: scope.$new(),
                                             templateUrl: 'components/end_game_modal/responseDraw.html',
@@ -2322,7 +2382,11 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                                         scope.contCtrl.ingame = false;
                                         scope.contCtrl.viewValue = 'players';
 
-                                        socketService.socketEmit('endGame', $rootScope.account.username);
+                                        socketService.socketEmit('endGame', {
+                                            user: $rootScope.account.username,
+                                            wins: $rootScope.account.wins,
+                                            loses: $rootScope.account.loses
+                                        });
 
                                         $mdDialog.show({
                                             scope: scope.$new(),
@@ -2399,8 +2463,22 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                             id: $rootScope.account._id,
                             status: 1
                         }).then(rsp => {
-                            socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 1 });
-                            socketService.socketEmit('updateList', { user: scope.contCtrl.enemy, status: 0 });
+                            //update data for me
+                            accService.getAccData($rootScope.account.username).then(rsp => {
+                                if (rsp.data) {
+                                    $rootScope.account.wins = rsp.data.wins;
+                                    $rootScope.account.loses = rsp.data.loses;
+                                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 1, wins: $rootScope.account.wins, loses: $rootScope.account.loses });
+                                }
+                            });
+
+                            //update data for enemy
+                            accService.getAccData(scope.contCtrl.enemy).then(rsp => {
+                                if (rsp.data) {
+                                    socketService.socketEmit('updateList', { user: scope.contCtrl.enemy, status: 0, wins: rsp.data.wins, loses: rsp.data.loses });
+                                }
+                            });
+
                             $mdDialog.show({
                                 scope: scope.$new(),
                                 templateUrl: 'components/leave_game_modal/responseWinByLeave.html',
@@ -2441,6 +2519,8 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                     updateStatus();
                 });
             };
+
+            scope.$on('startGame', reinit());
 
             $(window).resize(() => {
                 if (board) {
@@ -2508,7 +2588,15 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                     id: $rootScope.account._id,
                     status: 1
                 }).then(rsp => {
-                    socketService.socketEmit('leftGame', $rootScope.account.username);
+                    accService.getAccData($rootScope.account.username).then(rsp => {
+                        socketService.socketEmit('leftGame', {
+                            user: $rootScope.account.username,
+                            wins: rsp.data.wins,
+                            loses: rsp.data.loses
+                        });
+                        $rootScope.account.wins = rsp.data.wins;
+                        $rootScope.account.loses = rsp.data.loses;
+                    });
                 });
 
                 $mdDialog.destroy();
@@ -2584,7 +2672,15 @@ const gamePlatform = ($rootScope, socketService, $mdDialog, accService, gameServ
                         fullscreen: scope.customFullscreen
                     });
 
-                    socketService.socketEmit('leaveRoom', $rootScope.account.username);
+                    accService.getAccData($rootScope.account.username).then(rsp => {
+                        socketService.socketEmit('leaveRoom', {
+                            user: $rootScope.account.username,
+                            wins: rsp.data.wins,
+                            loses: rsp.data.loses
+                        });
+                        $rootScope.account.wins = rsp.data.wins;
+                        $rootScope.account.loses = rsp.data.loses;
+                    });
                 });
             });
 
@@ -2792,7 +2888,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                 accService.login(scope.account).then(rsp => {
                     scope.logoutLoading = false;
                     if (rsp.data) {
-                        if ($rootScope.account.type == 2) socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 0 });
+                        if ($rootScope.account.type == 2) socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 0, wins: $rootScope.account.wins, loses: $rootScope.account.loses });
                         $rootScope.account = null;
                         localStorageService.clearAll();
                         $location.path('/login');
@@ -2872,6 +2968,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                     });
                     scope.contCtrl.ingame = true;
                     scope.contCtrl.viewValue = 'game';
+                    $rootScope.$broadcast('startGame');
                     scope.$apply();
                     scope.contCtrl.currGameId = from.source.game_Id;
                 }
@@ -2926,6 +3023,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
             socketService.socketOn('enterGame', from => {
                 scope.contCtrl.ingame = true;
                 scope.contCtrl.viewValue = 'game';
+                $rootScope.$broadcast('startGame');
                 scope.contCtrl.currGameId = from.source;
             });
         }
@@ -3200,6 +3298,14 @@ class accService {
         return _$http(configObject);
     }
 
+    getAccData(accData) {
+        const configObject = {
+            method: 'GET',
+            url: '/acc/' + accData
+        };
+        return _$http(configObject);
+    }
+
     activateAcc(accData) {
         const configObject = {
             method: 'PUT',
@@ -3243,11 +3349,10 @@ class accService {
         return _$http(configObject);
     }
 
-    getPlayers(accData) {
+    getPlayers() {
         const configObject = {
             method: 'POST',
-            url: '/players',
-            data: JSON.stringify(accData)
+            url: '/players'
         };
         return _$http(configObject);
     }

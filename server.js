@@ -90,9 +90,11 @@ io.on('connection', (socket) => {
         socket.leave(currentRoom);
         socket.broadcast.emit('updateList', {
             source: {
-                user: from,
+                user: from.user,
                 status: 1,
-                sockId: socket.id
+                sockId: socket.id,
+                wins:from.wins,
+                loses:from.loses
             }
         });
     })
@@ -117,9 +119,11 @@ io.on('connection', (socket) => {
         socket.leave(currentRoom);
         socket.broadcast.emit('updateList', {
             source: {
-                user: from,
+                user: from.user,
                 status: 1,
-                sockId: socket.id
+                sockId: socket.id,
+                wins: from.wins,
+                loses: from.loses
             }
         });
     })
@@ -129,9 +133,11 @@ io.on('connection', (socket) => {
         socket.leave(currentRoom);
         socket.broadcast.emit('updateList', {
             source: {
-                user: from,
+                user: from.user,
                 status: 1,
-                sockId: socket.id
+                sockId: socket.id,
+                wins:from.wins,
+                loses:from.loses
             }
         });
     })
@@ -153,7 +159,9 @@ io.on('connection', (socket) => {
                     source: {
                         user: account.username,
                         status: 2,
-                        sockId: null
+                        sockId: null,
+                        wins:account.wins,
+                        loses:account.loses
                     }
                 });
             }
@@ -189,7 +197,9 @@ io.on('connection', (socket) => {
                                     source: {
                                         user: acc.username,
                                         status: 0,
-                                        sockId: null
+                                        sockId: null,
+                                        wins: acc.wins,
+                                        loses: acc.loses
                                     }
                                 });
                             }
@@ -221,7 +231,9 @@ io.on('connection', (socket) => {
                         source: {
                             user: account.username,
                             status: 2,
-                            sockId: null
+                            sockId: null,
+                            wins:account.wins,
+                            loses:account.loses
                         }
                     });
                 }

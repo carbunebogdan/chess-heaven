@@ -16,6 +16,14 @@ class accService {
         return _$http(configObject);
     }
 
+    getAccData(accData){
+        const configObject = {
+            method: 'GET',
+            url:'/acc/'+accData
+        }
+        return _$http(configObject);
+    }
+
     activateAcc(accData){
         const configObject = {
             method: 'PUT',
@@ -59,11 +67,10 @@ class accService {
         return _$http(configObject);
     }
 
-    getPlayers(accData){
+    getPlayers(){
         const configObject = {
             method: 'POST',
-            url: '/players',
-            data: JSON.stringify(accData)
+            url: '/players'
         };
         return _$http(configObject);
     }

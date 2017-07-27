@@ -110,7 +110,7 @@ router.route('/acc')
 
 router.route('/acc/:user')
     .get((request, res) => {
-        accModel.findOne({ 'username': request.params.user}, {}, (err, acc) => {
+        accModel.findOne({ 'username': request.params.user}, {wins:1,loses:1}, (err, acc) => {
             if (err) {
                 return res.send(err);
             }
@@ -171,7 +171,7 @@ router.route('/accmoney')
     });
 router.route('/players')
     .post((request,res)=>{
-        accModel.find({'type':2,'username':{$ne: request.body.username}}, {username:1,status:1,sockId:1}, (err, accounts) => {
+        accModel.find({'type':2}, {username:1,status:1,sockId:1,wins:1,loses:1}, (err, accounts) => {
             if (err) {
                 return res.send(err);
             }

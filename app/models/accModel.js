@@ -33,6 +33,14 @@ const accModel = new Schema({
         type: String,
         default: null
     },
+    wins:{
+        type: Number,
+        default: 0
+    },
+    loses:{
+        type: Number,
+        default: 0
+    },
     join_date: {
         type: Date,
         required: true,

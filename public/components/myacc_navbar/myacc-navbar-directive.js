@@ -14,7 +14,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                     scope.logoutLoading = false;
                     if (rsp.data) {
                         if ($rootScope.account.type == 2)
-                            socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 0 });
+                            socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 0, wins:$rootScope.account.wins, loses:$rootScope.account.loses});
                         $rootScope.account = null;
                         localStorageService.clearAll();
                         $location.path('/login');
@@ -97,6 +97,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
                     });
                     scope.contCtrl.ingame=true;
                     scope.contCtrl.viewValue = 'game';
+                    $rootScope.$broadcast('startGame');
                     scope.$apply();
                     scope.contCtrl.currGameId=from.source.game_Id;
                 }
@@ -152,6 +153,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
             socketService.socketOn('enterGame',(from)=>{
                 scope.contCtrl.ingame=true;
                 scope.contCtrl.viewValue = 'game';
+                $rootScope.$broadcast('startGame');
                 scope.contCtrl.currGameId=from.source;
             })
 

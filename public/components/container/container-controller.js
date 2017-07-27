@@ -7,7 +7,14 @@ class containerController {
         if (!$rootScope.account)
             $location.path('/login');
 
-
+        if($rootScope.account.type==2){
+            accService.getAccData($rootScope.account.username).then((rsp)=>{
+                if(rsp.data){
+                    $rootScope.account.wins=rsp.data.wins;
+                    $rootScope.account.loses=rsp.data.loses;
+                }
+            });
+        }
 
         // Shared properties throughout the application
         this.players = playerRsp.data;
@@ -73,9 +80,9 @@ class containerController {
                     })
                     this.ingame = true;
                     this.viewValue = 'game';
-                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 2 });
+                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 2, wins:$rootScope.account.wins, loses:$rootScope.account.loses });
                 } else {
-                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 1 });
+                    socketService.socketEmit('updateList', { user: $rootScope.account.username, status: 1, wins:$rootScope.account.wins, loses:$rootScope.account.loses });
                 }
             })
         }

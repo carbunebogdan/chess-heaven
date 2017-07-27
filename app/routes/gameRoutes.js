@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const gameModel = require('../models/gameModel');
 const compModel = require('../models/compModel');
+const accModel = require('../models/accModel');
 
 router.route('/game')
 	.get((request, res) => {
@@ -27,6 +28,42 @@ router.route('/game')
                 return res.send(err);
             }
             
+            if(request.body.room){
+                if(request.body.status==1){
+                    // p1 win
+                    accModel.findOneAndUpdate({_id:request.body.p1_id},{ $inc:{ wins:1 } },{ new:true }, (err, account) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                        
+                        
+                    });
+                    accModel.findOneAndUpdate({_id:request.body.p2_id},{ $inc:{ loses:1 } },{ new:true }, (err, account) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                        
+                        
+                    });
+                }else if(request.body.status==3){
+                    // p2 win
+                    accModel.findOneAndUpdate({_id:request.body.p2_id},{ $inc:{ wins:1 } },{ new:true }, (err, account) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                        
+                        
+                    });
+                    accModel.findOneAndUpdate({_id:request.body.p1_id},{ $inc:{ loses:1 } },{ new:true }, (err, account) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                        
+                        
+                    });
+                }
+            }
+
             // Update the competition with the correct data when games are ending
             gameModel.find({ 'comp_id': request.body.comp_id, 'round': request.body.round, 'status': 0}, {}, (err, games) => {
                 if (games.length === 0) {
