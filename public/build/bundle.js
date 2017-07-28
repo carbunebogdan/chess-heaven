@@ -1990,6 +1990,29 @@ class containerController {
         socketService.socketOn('newCompetition', resp => {
             competitionService.getCompetition().then(resp => {
                 this.competitions = resp.data;
+                for (var i = 0; i < this.competitions.length; i++) {
+                    var r = Math.random();
+                    if (this.competitions[i].status == 0) {
+                        this.competitions[i].color = '#64ef82';
+                    } else {
+                        this.competitions[i].color = '#ff706b';
+                    }
+                    if (r < 0.8) {
+                        this.competitions[i].colspan = 2;
+                    } else if (r < 0.9) {
+                        this.competitions[i].colspan = 3;
+                    } else {
+                        this.competitions[i].colspan = 4;
+                    }
+                    r = Math.random();
+                    if (r < 0.8) {
+                        this.competitions[i].rowspan = 2;
+                    } else if (r < 0.9) {
+                        this.competitions[i].rowspan = 3;
+                    } else {
+                        this.competitions[i].rowspan = 4;
+                    }
+                }
             });
         });
     }
