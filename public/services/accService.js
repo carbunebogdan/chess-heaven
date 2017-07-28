@@ -24,6 +24,15 @@ class accService {
         return _$http(configObject);
     }
 
+    updateClub(accData){
+        const configObject = {
+            method: 'PUT',
+            url:'/acc/'+accData.username,
+            data: JSON.stringify(accData)
+        }
+        return _$http(configObject);
+    }
+
     activateAcc(accData){
         const configObject = {
             method: 'PUT',
@@ -71,6 +80,14 @@ class accService {
         const configObject = {
             method: 'POST',
             url: '/players'
+        };
+        return _$http(configObject);
+    }
+
+    getPlayersByClub(club){
+        const configObject = {
+            method: 'GET',
+            url: '/club/'+club
         };
         return _$http(configObject);
     }

@@ -116,6 +116,18 @@ router.route('/acc/:user')
             }
             return res.send(acc);
         });
+    })
+    .put((request,res)=>{
+        accModel.findOneAndUpdate(
+            { 'username': request.params.user },
+            { $set: { 'club':request.body.club } },
+            { new:true }, (err, account) => {
+            if (err) {
+                return res.send(err);
+            }
+            return res.send(account);
+            
+        });
     });
 router.route('/activate')
     .put((request, res)=>{
@@ -195,6 +207,14 @@ router.route('/players/:id')
             res.json(player);
         })
     });
-
+router.route('/club/:club')
+    .get((request,res)=>{
+        accModel.find({'club':request.params.club},{username:1,status:1,wins:1,loses:1},(err,players)=>{
+            if(err){
+                return res.send(err);
+            }
+            res.json(players);
+        });
+    })
 
 module.exports = router;

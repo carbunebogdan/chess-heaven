@@ -1,6 +1,7 @@
 <!-- Referee -->
 <div layout="row" layout-xs="column" class="navbar navbar-default" style="padding-left: 2rem" ng-if="account.type==0">
 	<div>
+		<img style="width: 15rem;" src="../images/chess-heaven.png">
 		<h4>Hello, {{account.username}}</h4>
 	</div>
 	<div flex>
@@ -15,6 +16,7 @@
 <!-- Gambler -->
 <div layout="row" layout-xs="column" class="navbar navbar-default" style="padding-left: 2rem" ng-if="account.type==1">
 	<div>
+		<img style="width: 15rem;" src="../images/chess-heaven.png">
 		<h4>Hello, {{account.username}} | Balance: {{account.money|currency:"$":0}}</h4>
 	</div>
 	<div flex>
@@ -29,17 +31,21 @@
 <!-- Player -->
 <div layout="row" layout-xs="column" class="navbar navbar-default" style="padding-left: 2rem" ng-if="account.type==2">
 	<div>
-		<h4>Hello, {{account.username}} | </h4>
+		<img style="width: 15rem;" src="../images/chess-heaven.png">
+		<h4>Hello, {{account.username}}  </h4>
 	</div>
-	<div flex>
+	<div flex style="margin-top:2rem;margin-bottom: 2rem">
 		
 	</div>
 
-	<div>
-		<md-button class="md-icon-button md-primary" aria-label="Favorite">
-        	<md-icon md-svg-icon="../images/icons/notification.svg"></md-icon>
-      	</md-button>
-		<md-button class="md-primary md-raised md-cornered" ng-hide="contCtrl.ingame" ng-click="logout()">Log out</md-button>
+	<div style="">
+		<div style="">
+			<md-button class="md-icon-button md-primary" aria-label="Favorite">
+	        	<md-icon md-svg-icon="../images/icons/notification.svg"></md-icon>
+	      	</md-button>
+			<md-button class="md-primary md-raised md-cornered" ng-hide="contCtrl.ingame" ng-click="logout()">Log out</md-button>	
+		</div>
+		
 	</div>
 	
 </div>

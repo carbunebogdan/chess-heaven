@@ -53,7 +53,7 @@ const gameComponent = ($rootScope, gameService, accService, betService, localSto
 
             scope.getBets= ()=>{
                 var currGame={
-                        userId: scope.account._id,
+                        userId: $rootScope.account._id,
                         gameId: scope.gameData._id
                     };
 
@@ -123,7 +123,7 @@ const gameComponent = ($rootScope, gameService, accService, betService, localSto
 
             scope.placeBet = (game) => {
                 scope.bet.gameId = game._id;
-                scope.bet.userId = scope.account._id;
+                scope.bet.userId = $rootScope.account._id;
                 var userMoney = {
                     user: scope.bet.userId,
                     ammount: -scope.bet.money

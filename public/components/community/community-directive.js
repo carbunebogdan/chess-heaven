@@ -63,6 +63,7 @@ const communityDirective = ($rootScope, socketService, accService, $timeout) => 
 		    		p1_id:$rootScope.account._id,
 		    		sockId:sockId
 		    	});
+		    	$rootScope.challenged=true;
 		    }
 
 		    scope.$on('refreshPlayers',()=>{

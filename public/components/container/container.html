@@ -188,21 +188,25 @@
                 <md-button class="md-primary md-raised" ng-disabled="contCtrl.subViewValue === 'myacc'" ng-click="changeSubView('myacc')">My account</md-button>
             </li>
             <li>
-                <md-button class="md-primary md-raised" ng-disabled="contCtrl.subViewValue === 'mygames'" ng-click="changeSubView('mygames')">My Games</md-button>
+                <md-button class="md-primary md-raised" ng-disabled="contCtrl.subViewValue === 'club'" ng-click="changeSubView('club')">Club</md-button>
             </li>
         </ol>
         <!-- end of <Sub Menu> -->
         <!-- My account -->
         <md-content ng-if="contCtrl.subViewValue=='myacc'" class="md-whiteframe-15dp" style="padding: 2rem">
             <h3>Statistics</h3>
+            <div>
+                <statistics-directive></statistics-directive>
+            </div>
         </md-content>
         <!-- Current Bids -->
-        <md-content ng-if="contCtrl.subViewValue=='mygames'" class="md-whiteframe-15dp" style="padding: 2rem;">
-            <h3>My Games</h3>
+        <md-content ng-if="contCtrl.subViewValue=='club'" class="md-whiteframe-15dp" style="padding: 2rem;">
+            <h2 ng-if="account.club" style="font-weight: bolder">{{account.club}}</h3>
+            <h2 ng-if="!account.club" style="font-weight: bolder">You haven't joined a club yet</h3>
             <hr>
-            <h4>Finished</h4>
-            <hr>
-            <h4>Active</h4>
+            <div>
+                <club-directive></club-directive>             
+            </div>
             <hr>
         </md-content>
     </div>

@@ -4,13 +4,13 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
         restrict: 'E',
         link: (scope) => {
             var newChallengeSound = new Audio('../../sounds/newChallenge.mp3');
-            scope.account = $rootScope.account;
             var challengerUserId=null;
             var challengeDeclined = false;
+
             scope.logout = () => {
                 scope.logoutLoading = true;
-                scope.account.status = 0;
-                accService.login(scope.account).then((rsp) => {
+                $rootScope.account.status = 0;
+                accService.login($rootScope.account).then((rsp) => {
                     scope.logoutLoading = false;
                     if (rsp.data) {
                         if ($rootScope.account.type == 2)
@@ -27,29 +27,23 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
 
             // on new bet refresh user data
             socketService.socketOn('newBet', (resp) => {
-                scope.userRefresh = {
-                    username: scope.account.username,
-                    password: scope.account.password,
-                    status: 1
+                if(!$rootScope.account){
+                    $rootScope.account=localStorageService.get('account');
                 }
-                accService.login(scope.userRefresh).then((resp) => {
+                accService.login($rootScope.account).then((resp) => {
                     $rootScope.account = resp.data;
                     localStorageService.set('account', $rootScope.account);
-                    scope.account = $rootScope.account;
                 });
             });
 
             // update money event
             socketService.socketOn('updateMoney', (resp) => {
-                scope.userRefresh = {
-                    username: scope.account.username,
-                    password: scope.account.password,
-                    status: 1
+                if(!$rootScope.account){
+                    $rootScope.account=localStorageService.get('account');
                 }
-                accService.login(scope.userRefresh).then((resp) => {
+                accService.login($rootScope.account).then((resp) => {
                     $rootScope.account = resp.data;
                     localStorageService.set('account', $rootScope.account);
-                    scope.account = $rootScope.account;
                 });
             });
 
@@ -80,6 +74,7 @@ const myaccNavbar = ($mdDialog, $window, $rootScope, accService, localStorageSer
 
             // receive challenge response
             socketService.socketOn('challengeResponse', (from) => {
+                $rootScope.challenged=false;
                 if (from.source.response == 0) {
                     scope.challengedName = from.source.p2;
                     $mdDialog.show({

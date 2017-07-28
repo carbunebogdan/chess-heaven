@@ -1,0 +1,50 @@
+<md-progress-circular md-mode="indeterminate" ng-if="getClubLoading" style="display: block;margin: auto"></md-progress-circular>
+<div ng-if="account.club">
+	<p ng-if="clubPpl.length==0">There are no other club members.</p>
+	<div ng-if="clubPpl.length>0">
+		<h3 style="text-align: center;">Club members</h3>
+		<md-progress-circular md-mode="indeterminate" ng-if="getMembersLoading" style="display: block;margin: auto"></md-progress-circular>
+		<table class="table table-striped"> 
+                <thead> 
+                    <tr> 
+                        <th>Name</th>  
+                        <th>Status</th> 
+                        <th>Wins</th>
+                        <th>Loses</th>  
+                    </tr> 
+                </thead> 
+                <tbody> 
+                    <tr ng-repeat="member in clubPpl"> 
+                        <td>
+                            <p>{{member.username}}</p>
+                        </td>
+                        <td>
+                        	<p ng-if="member.status==0">
+                        		Offline
+                        	</p>
+                            <p ng-if="member.status==1">Available</p>
+                            <p ng-if="member.status==2">Ingame</p>
+                        </td>
+                        <td>
+                            <p>{{member.wins}}</p>
+                        </td>
+                        <td>
+                            <p>{{member.loses}}</p>
+                        </td>
+                    </tr> 
+                </tbody> 
+            </table>
+	</div>
+	<hr>
+	<md-button class="md-raised md-warn" ng-click="updateClub(null)">Leave club</md-button>
+</div>
+<div ng-if="!account.club">
+	<p>
+		Please enter your club here:
+	</p>
+	<md-input-container style="display: inline-block;">
+		        <label>Club</label>
+		        <input ng-model="club" type="text" name="club" required>
+	</md-input-container>
+	<md-button class="md-raised md-primary" ng-click="updateClub(club)">Update</md-button>
+</div>
