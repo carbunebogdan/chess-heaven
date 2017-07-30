@@ -32,7 +32,7 @@ app.set('port', (process.env.PORT || 5000));
 const server = app.listen(app.get('port'), ()=>{
     console.log('Chess Heaven opened the gates on port ' + app.get('port'));
 });
-
+server.listen('/tmp/nginx.socket');
 const io = require('socket.io')(server);
 
 

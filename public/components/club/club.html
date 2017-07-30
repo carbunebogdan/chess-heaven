@@ -3,7 +3,6 @@
 	<p ng-if="clubPpl.length==0">There are no other club members.</p>
 	<div ng-if="clubPpl.length>0">
 		<h3 style="text-align: center;">Club members</h3>
-		<md-progress-circular md-mode="indeterminate" ng-if="getMembersLoading" style="display: block;margin: auto"></md-progress-circular>
 		<table class="table table-striped"> 
                 <thead> 
                     <tr> 
@@ -35,6 +34,7 @@
                 </tbody> 
             </table>
 	</div>
+    <md-progress-circular md-mode="indeterminate" ng-if="getMembersLoading" style="display: block;margin: auto"></md-progress-circular>
 	<hr>
 	<md-button class="md-raised md-warn" ng-click="updateClub(null)">Leave club</md-button>
 </div>
