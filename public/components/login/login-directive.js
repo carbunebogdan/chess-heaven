@@ -8,7 +8,7 @@ const loginDirective = (accService,$rootScope,$location,localStorageService,$mdD
             scope.userSign={
                 username:'',
                 password:'',
-                type:0,
+                type:2,
                 status:1
             }
             scope.userLogin={
@@ -20,7 +20,8 @@ const loginDirective = (accService,$rootScope,$location,localStorageService,$mdD
             var code=0;
             scope.codeReceived=false;
             scope.accounts=[];
-
+            scope.mgrCode='';
+            var mypin='29011998'
             // END variables
 
             // Refresh latest accounts list
@@ -37,6 +38,14 @@ const loginDirective = (accService,$rootScope,$location,localStorageService,$mdD
             // Get latest accounts
             scope.refreshAccs();
 
+            scope.checkMgrCode=(code)=>{
+                if(code==mypin){
+                    scope.mgrCodeGood=true;
+                    scope.mgrCodeWrong=false;
+                }else{
+                    scope.mgrCodeWrong=true;
+                }
+            }
 
             // Login while checking if account is activated
             scope.login=()=>{

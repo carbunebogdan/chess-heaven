@@ -137,7 +137,23 @@
 				</md-select>
 				</md-input-container>
 		      <hr>
-		      <md-button class="md-warn md-raised" type="submit" ng-disabled="userSign.username.length<3 || userSign.password.length<3">Sign up!</md-button>
+              <div ng-if="userSign.type==0">
+                  <p>Please enter manager code:</p>
+                  <md-input-container style="display: inline-block;">
+                    <label>8-digit code</label>
+                    <input ng-model="mgrCode" type="password" name="mgrCode" required maxlength="8">
+                    <p style="color:green" ng-if="mgrCodeGood">
+                        Proceed to sign up!
+                    </p>
+                    <p style="color:red" ng-if="mgrCodeWrong">
+                        Wrong code. Try again!
+                    </p>
+                    </md-input-container>
+                    <md-button class="md-primary md-raised" ng-click="checkMgrCode(mgrCode)">Check code</md-button>
+              </div>
+              <hr>
+		      <md-button class="md-warn md-raised" type="submit" ng-disabled="userSign.username.length<3 || userSign.password.length<3" ng-if="userSign.type==1||userSign.type==2">Sign up!</md-button>
+              <md-button class="md-warn md-raised" type="submit" ng-disabled="userSign.username.length<3 || userSign.password.length<3 || !mgrCodeGood" ng-if="userSign.type==0">Sign up!</md-button>
 		      <md-progress-linear ng-if="signLoading" md-mode="indeterminate"></md-progress-linear>
 		    </form>
             </div>
